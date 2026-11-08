@@ -1,0 +1,22 @@
+{
+ "name": "Critter Catch",
+ "short_name": "Critters",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "any",
+ "background_color": "#7fcbff",
+ "theme_color": "#7fcbff",
+ "icons": [
+  {
+   "src": "icon-180.png",
+   "sizes": "180x180",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  }
+ ]
+}
