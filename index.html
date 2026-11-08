@@ -209,6 +209,8 @@ img{max-width:100%}
 .tabs button{padding:7px 14px;border-radius:999px;border:2px solid var(--line);font-weight:600;font-size:15px}
 .tabs button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
 .reclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.reclist.wide{grid-template-columns:1fr}
+.recrow .w{min-width:0;flex:1}
 .recrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:14px;padding:6px 10px 6px 6px;min-width:0}
 .recrow .thumb{width:52px;height:52px;border-radius:10px;background:var(--panel);flex:none;display:grid;place-items:center;overflow:hidden}
 .recrow .thumb img{width:100%;height:100%;object-fit:contain}
@@ -381,6 +383,16 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
     </div>
 
     <div class="gpanel">
+      <h3>Other voice lines</h3>
+      <p>Record what the game says, too. Say only the words shown. Names are recorded on their own, and the game slots them in where you see “…”. A line uses your voice once every piece of it is recorded. Until then, the iPad voice reads the whole line.</p>
+      <div class="tabs" id="g-linetabs"></div>
+      <div class="note" id="g-linecount"></div>
+      <div class="reclist" id="g-linelist"></div>
+      <div class="btnrow"><button class="gbtn" id="g-export">Export recordings</button></div>
+      <p class="note">This button exports every recording: words, game lines and names. Recordings marked “this iPad only” are lost if Safari’s website data is cleared. Export them, add the <code>voices</code> folder from the zip to the game’s GitHub repo, and they’ll play on every device.</p>
+    </div>
+
+    <div class="gpanel">
       <h3>Progress</h3>
       <div class="btnrow">
         <div class="tabs" id="g-progtabs"></div>
@@ -410,7 +422,7 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
         <button class="gbtn danger" id="g-reset-crit">Reset critters</button>
         <button class="gbtn danger" id="g-reset-log">Clear practice history</button>
       </div>
-      <p class="note">Your voice recordings are kept unless you delete them one by one above. Everything stays on this iPad.</p>
+      <p class="note">Your voice recordings are kept unless you delete them one by one above. Recordings stay on this iPad until you export them.</p>
     </div>
   </div>
 </section>
@@ -567,23 +579,93 @@ function pickVoice(){try{const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]
 if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
 function say(text,{rate=.95,pitch=1.12}={}){return new Promise(res=>{if(!('speechSynthesis' in window))return res();let done=false;const fin=()=>{if(!done){done=true;res()}};
   try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);if(voice)u.voice=voice;u.rate=rate;u.pitch=pitch;u.onend=fin;u.onerror=fin;speechSynthesis.speak(u);setTimeout(fin,1200+text.length*85)}catch(e){fin()}})}
-function hush(){try{speechSynthesis.cancel()}catch(e){}try{AU.pause()}catch(e){}if(curSrc){try{curSrc.stop()}catch(e){}curSrc=null}}
-const clipURL={},clipBuf={};
+let speakGen=0;
+function hush(){speakGen++;try{speechSynthesis.cancel()}catch(e){}try{AU.pause()}catch(e){}if(curSrc){try{curSrc.stop()}catch(e){}curSrc=null}}
+const clipURL={},clipBuf={},clipTrim={};
 /* One reusable <audio> element (iOS lets an element keep playing once a tap has started it) */
 const AU=new Audio();AU.preload='auto';let curSrc=null;
 function playURL(url){return new Promise(res=>{let done=false;const fin=()=>{if(!done){done=true;res()}};try{AU.pause();AU.src=url;AU.onended=fin;AU.onerror=fin;const pr=AU.play();if(pr&&pr.catch)pr.catch(fin);setTimeout(fin,6000)}catch(e){fin()}})}
 /* Recordings are decoded once and played through Web Audio, which iOS allows after the first tap */
-function decodeClip(word,buf){const c=ac();if(!c)return Promise.resolve();return new Promise(res=>{try{c.decodeAudioData(buf.slice(0),b=>{clipBuf[word]=b;res()},()=>res())}catch(e){res()}})}
-function playBuf(b){return new Promise(res=>{let done=false;const fin=()=>{if(!done){done=true;res()}};try{const c=ac();if(curSrc){try{curSrc.stop()}catch(e){}}
-  const s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.onended=fin;s.start();curSrc=s;setTimeout(fin,b.duration*1000+400)}catch(e){fin()}})}
-function playWord(w){return clipBuf[w]?playBuf(clipBuf[w]):clipURL[w]?playURL(clipURL[w]):say(w,{rate:.82,pitch:1})}
+function decodeClip(word,buf){const c=ac();if(!c)return Promise.resolve();return new Promise(res=>{try{c.decodeAudioData(buf.slice(0),b=>{clipBuf[word]=b;clipTrim[word]=findTrim(b);res()},()=>res())}catch(e){res()}})}
+/* Skip the silence before and after the spoken part, so joined pieces of a line flow together */
+function findTrim(b){const d=b.getChannelData(0);let peak=0;for(let i=0;i<d.length;i++){const v=Math.abs(d[i]);if(v>peak)peak=v}
+  const th=Math.max(.01,peak*.1);let a=0,z=d.length-1;while(a<d.length&&Math.abs(d[a])<th)a++;while(z>a&&Math.abs(d[z])<th)z--;
+  if(a>=z)return{s:0,e:b.duration};return{s:Math.max(0,a/b.sampleRate-.06),e:Math.min(b.duration,z/b.sampleRate+.12)}}
+function playBuf(b,tr){tr=tr||{s:0,e:b.duration};return new Promise(res=>{let done=false;const fin=()=>{if(!done){done=true;res()}};try{const c=ac();if(curSrc){try{curSrc.stop()}catch(e){}}
+  const s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.onended=fin;s.start(0,tr.s,tr.e-tr.s);curSrc=s;setTimeout(fin,(tr.e-tr.s)*1000+400)}catch(e){fin()}})}
+function playClip(k){return clipBuf[k]?playBuf(clipBuf[k],clipTrim[k]):playURL(clipURL[k])}
+function playWord(w){return clipURL[w]?playClip(w):say(w,{rate:.82,pitch:1})}
+
+/* ---- Game lines in your voice ----
+   Each spoken line is built from pieces: a phrase (line:…), a critter's name (crit:…) or the child's name (name:…).
+   If every piece has a recording, the line plays in your voice. Otherwise the iPad voice reads the whole line,
+   so one line never mixes two voices. In the text, … marks where a name goes. */
+const LINES=[
+  ['hello','Hi…','Before your child’s name'],['lets','Let’s catch some critters!',''],
+  ['asleep','This island is still asleep. Ask a grown-up!',''],
+  ['parade','Here comes the snack parade!','After a critter’s name'],
+  ['hide','…is hiding behind a picture. Listen, and find…','Between a critter’s name, said twice'],
+  ...PRAISE_FIND.map((p,i)=>['find'+i,p,'Praise in Hide & Seek']),
+  ['greatlisten','Great listening…','Before your child’s name'],
+  ['waiter','…is the waiter! Tell them what to bring.','After a critter’s name'],
+  ['thanks','Thanks…','Before your child’s name'],
+  ['join','…wants to join your team! Say…','Between a critter’s name, said twice'],
+  ['grow','…wants to grow bigger! Say…','Between a critter’s name, said twice'],
+  ['caught','You caught…','Before a critter’s name'],['grewup','…grew up!','After a critter’s name'],
+  ['bigger','…got bigger!','After a critter’s name'],['greatjob','Great job…','Before your child’s name']];
+const L=id=>'line:'+id,CK=c=>'crit:'+c.id,NK=()=>'name:'+nm().toLowerCase();
+async function speakLine(keys,text,opt){const g=++speakGen;
+  if(keys.length&&keys.every(k=>clipURL[k])){for(const k of keys){if(g!==speakGen)return;await playClip(k)}return}
+  return say(text,opt)}
 
 /* ---- IndexedDB for recordings ---- */
 const idb=(()=>{let dbp=null;
   function open(){if(!dbp)dbp=new Promise((res,rej)=>{try{const r=indexedDB.open('critter-catch',1);r.onupgradeneeded=()=>r.result.createObjectStore('clips');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}});return dbp}
   async function run(mode,fn){const db=await open();return new Promise((res,rej)=>{const t=db.transaction('clips',mode),st=t.objectStore('clips');const r=fn(st);t.oncomplete=()=>res(r&&r.result);t.onerror=()=>rej(t.error)})}
   return{get:k=>run('readonly',s=>s.get(k)),put:(k,v)=>run('readwrite',s=>s.put(v,k)),del:k=>run('readwrite',s=>s.delete(k)),keys:()=>run('readonly',s=>s.getAllKeys())};})();
-async function loadClips(){try{const keys=await idb.keys();for(const k of keys){const v=await idb.get(k);if(v&&v.buf){clipURL[k]=URL.createObjectURL(new Blob([v.buf],{type:v.type}));await decodeClip(k,v.buf)}}}catch(e){}}
+/* clipData holds the raw audio for export; clipSrc says where it came from:
+   'local' = recorded on this device, 'repo' = shipped in the voices/ folder */
+const clipData={},clipSrc={},repoClip={};
+function setClip(w,buf,type,src){if(clipURL[w])URL.revokeObjectURL(clipURL[w]);clipURL[w]=URL.createObjectURL(new Blob([buf],{type}));
+  clipData[w]={buf,type};clipSrc[w]=src;delete clipBuf[w];return decodeClip(w,buf)}
+function clearClip(w){if(clipURL[w])URL.revokeObjectURL(clipURL[w]);delete clipURL[w];delete clipBuf[w];delete clipData[w];delete clipSrc[w];
+  if(repoClip[w])return setClip(w,repoClip[w].buf,repoClip[w].type,'repo');return Promise.resolve()}
+const EXT={m4a:'audio/mp4',mp4:'audio/mp4',webm:'audio/webm',ogg:'audio/ogg',wav:'audio/wav',mp3:'audio/mpeg'};
+const typeOfFile=f=>EXT[(f.split('.').pop()||'').toLowerCase()]||'audio/mp4';
+const extOfType=t=>/webm/.test(t)?'webm':/ogg/.test(t)?'ogg':/wav/.test(t)?'wav':/mpeg/.test(t)?'mp3':'m4a';
+/* Voices bundled with the game: voices/voices.json maps each word to its audio file */
+async function loadRepoVoices(){try{const r=await fetch('voices/voices.json',{cache:'no-cache'});if(!r.ok)return;const map=await r.json();
+  await Promise.all(Object.entries(map).map(async([w,f])=>{try{const a=await fetch('voices/'+encodeURIComponent(f));if(!a.ok)return;
+    const buf=await a.arrayBuffer(),type=typeOfFile(f);repoClip[w]={buf,type};if(!clipSrc[w])await setClip(w,buf,type,'repo')}catch(e){}}))}catch(e){}}
+async function loadClips(){try{const keys=await idb.keys();for(const k of keys){const v=await idb.get(k);if(v&&v.buf)await setClip(k,v.buf,v.type,'local')}}catch(e){}
+  await loadRepoVoices();if(!$('#scr-grown').hidden)renderRec()}
+
+/* ---- Export all voices as a zip (stored, no compression) ---- */
+const CRCT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(u){let c=~0;for(let i=0;i<u.length;i++)c=CRCT[(c^u[i])&255]^(c>>>8);return(~c)>>>0}
+function makeZip(files){const enc=new TextEncoder(),parts=[],cen=[];let off=0;
+  for(const f of files){const nm=enc.encode(f.name),d=f.data,crc=crc32(d);
+    const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);
+    h.setUint16(12,0x21,true);h.setUint32(14,crc,true);h.setUint32(18,d.length,true);h.setUint32(22,d.length,true);h.setUint16(26,nm.length,true);
+    parts.push(h.buffer,nm,d);
+    const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);
+    c.setUint16(14,0x21,true);c.setUint32(16,crc,true);c.setUint32(20,d.length,true);c.setUint32(24,d.length,true);c.setUint16(28,nm.length,true);c.setUint32(42,off,true);
+    cen.push(c.buffer,nm);off+=30+nm.length+d.length}
+  const size=cen.reduce((s,x)=>s+x.byteLength,0),e=new DataView(new ArrayBuffer(22));
+  e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,size,true);e.setUint32(16,off,true);
+  return new Blob([...parts,...cen,e.buffer],{type:'application/zip'})}
+function buildVoiceZip(){const used=new Set(),map={},files=[];
+  for(const w of Object.keys(clipData).sort()){const base=w.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'word';
+    let n=base,i=2;while(used.has(n))n=base+'-'+(i++);used.add(n);
+    const fn=n+'.'+extOfType(clipData[w].type);map[w]=fn;files.push({name:'voices/'+fn,data:new Uint8Array(clipData[w].buf)})}
+  files.unshift({name:'voices/voices.json',data:new TextEncoder().encode(JSON.stringify(map,null,1)+'\n')});
+  return{blob:makeZip(files),count:files.length-1}}
+async function exportVoices(){const {blob,count}=buildVoiceZip();if(!count){toast('Record some words first.');return}
+  const name='critter-voices.zip',file=new File([blob],name,{type:'application/zip'});
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Critter Catch voices'});return}}
+  catch(e){if(e&&e.name==='AbortError')return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000)}
 
 /* ---- Microphone ---- */
 const mic={stream:null,an:null,buf:null,
@@ -619,7 +701,7 @@ function renderMap(){
   $('#gearhint').hidden=!!S.setup&&S.trips.length>0;
 }
 $('#islands').addEventListener('click',e=>{const b=e.target.closest('.island');if(!b)return;ac();const w=WMAP[b.dataset.w];
-  if(!S.worlds[w.id]){b.animate([{transform:'rotate(0)'},{transform:'rotate(-4deg)'},{transform:'rotate(4deg)'},{transform:'rotate(0)'}],{duration:400});sfx.soft();say('This island is still asleep. Ask a grown-up!');return}
+  if(!S.worlds[w.id]){b.animate([{transform:'rotate(0)'},{transform:'rotate(-4deg)'},{transform:'rotate(4deg)'},{transform:'rotate(0)'}],{duration:400});sfx.soft();speakLine([L('asleep')],'This island is still asleep. Ask a grown-up!');return}
   startTrip(w)});
 $('#btn-book').onclick=()=>{ac();sfx.pop();show('book')};
 $('#book-home').onclick=()=>{hush();show('map')};
@@ -675,7 +757,7 @@ async function parade(t){
   const words=shuffle(t.w.pairs.map(p=>p[0])).slice(0,8);
   const lane=$('#parade');lane.innerHTML=`<div class="marcher">${cSVG(t.cr)}</div>`;
   $('#parade-say').textContent=`${t.cr.name}’s snack parade!`;
-  await say(`Here comes ${t.cr.name}’s snack parade!`);
+  await speakLine([CK(t.cr),L('parade')],`Here comes ${t.cr.name}’s snack parade!`);
   for(const w of words){if(!alive(t)||skipped)break;
     const f=document.createElement('div');f.className='float';f.innerHTML=pic(t.w,w);lane.appendChild(f);
     await sleep(30);f.classList.add('in');sfx.step();await sleep(500);if(!alive(t)||skipped)break;
@@ -686,7 +768,7 @@ async function parade(t){
 async function hideSeek(t){
   stage('hide');const box=$('#hidepair'),bub=$('#hide-say');
   bub.textContent=`${t.cr.name} is hiding! Listen…`;box.innerHTML='';
-  await say(`${t.cr.name} is hiding behind a picture. Listen, and find ${t.cr.name}!`);
+  await speakLine([CK(t.cr),L('hide'),CK(t.cr)],`${t.cr.name} is hiding behind a picture. Listen, and find ${t.cr.name}!`);
   let n=0;
   for(const tr of t.hideT){if(!alive(t))return;
     const order=Math.random()<.5?[tr.p[0],tr.p[1]]:[tr.p[1],tr.p[0]];
@@ -700,7 +782,7 @@ async function hideSeek(t){
     const right=chosen.dataset.w===tr.t, target=slots.find(s=>s.dataset.w===tr.t);
     logIt({wid:t.w.id,w:tr.t,k:'h',ok:right?1:0});
     if(right){chosen.classList.add('found');sfx.pop();setTimeout(sfx.ding,180);addStar('got');bub.textContent=pick(PRAISE_FIND);
-      if(++n%3===0)say(nm()?`Great listening, ${nm()}!`:pick(PRAISE_FIND));await sleep(1300)}
+      if(++n%3===0){if(nm())speakLine([L('greatlisten'),NK()],`Great listening, ${nm()}!`);else{const i=Math.floor(Math.random()*PRAISE_FIND.length);speakLine([L('find'+i)],PRAISE_FIND[i])}};await sleep(1300)}
     else{chosen.classList.add('empty');sfx.soft();await sleep(550);if(!alive(t))return;
       target.classList.add('hint','found');bub.textContent='Here it is!';await playWord(tr.t);addStar('tried');await sleep(900)}
   }
@@ -711,7 +793,7 @@ async function cafe(t){
   stage('cafe');await banner('Café time!');if(!alive(t))return;
   const bub=$('#cafe-say'),card=$('#ordercard'),waiter=$('#waiter'),shelf=$('#shelf'),pbtns=$('#parent-btns');
   waiter.innerHTML=cSVG(t.cr)+'<div class="tray" id="tray"></div>';
-  say(`${t.cr.name} is the waiter! Tell ${t.cr.name} what to bring.`);
+  speakLine([CK(t.cr),L('waiter')],`${t.cr.name} is the waiter! Tell ${t.cr.name} what to bring.`);
   let n=0;
   for(const w of t.cafeT){if(!alive(t))return;
     const pair=t.pairs.find(p=>p.includes(w)), opts=Math.random()<.5?pair:[pair[1],pair[0]];
@@ -730,10 +812,10 @@ async function cafe(t){
       const it=shelf.querySelector(`.item[data-w="${CSS.escape(heard)}"]`);it&&it.classList.add('taken');
       tray.innerHTML=pic(t.w,heard);tray.classList.add('show');sfx.whoosh();await sleep(500);if(!alive(t))return;
       if(heard===w){waiter.classList.add('happy');sfx.ding();bub.textContent=pick(PRAISE_CAFE);result=tries;
-        if(++n%3===0&&nm())say(`Thanks, ${nm()}!`);await sleep(1200);break}
+        if(++n%3===0&&nm())speakLine([L('thanks'),NK()],`Thanks, ${nm()}!`);await sleep(1200);break}
       // the mix-up: critter brought the other thing
       waiter.classList.add('huh');sfx.boing();bub.textContent=`${heard}? Oops!`;
-      await say(`${heard}?`,{rate:1,pitch:1.35});await sleep(500);if(!alive(t))return;
+      await (clipURL[heard]?playClip(heard):say(`${heard}?`,{rate:1,pitch:1.35}));await sleep(500);if(!alive(t))return;
       tray.classList.remove('show');it&&it.classList.remove('taken');waiter.className='waiter';
       card.classList.add('pulse');bub.textContent='Try again!';await playWord(w);if(!alive(t))return;
       if(tries>=2){result=0;bub.textContent='Next order!';await sleep(800);break}
@@ -748,7 +830,7 @@ async function catchIt(t){
   stage('catch');const wrap=$('#catchwrap'),net=$('#net'),fg=$('#meterfg'),bub=$('#catch-say'),c=t.cr;
   wrap.className='catchwrap';wrap.innerHTML=cSVG(c);
   bub.textContent=t.mode==='new'?`${c.name} wants to join your team! Say “${c.name}!”`:`${c.name} wants to grow! Say “${c.name}!”`;
-  await say(t.mode==='new'?`${c.name} wants to join your team! Say ${c.name}!`:`${c.name} wants to grow bigger! Say ${c.name}!`);
+  await speakLine([CK(c),L(t.mode==='new'?'join':'grow'),CK(c)],t.mode==='new'?`${c.name} wants to join your team! Say ${c.name}!`:`${c.name} wants to grow bigger! Say ${c.name}!`);
   if(!alive(t))return;
   let meter=0,micOn=false,done=false;
   try{await mic.get();micOn=true}catch(e){bub.textContent=`Say “${c.name}!” and tap the bubble!`}
@@ -769,17 +851,17 @@ async function catchIt(t){
   await sleep(450);wrap.classList.add('inbubble');await sleep(350);b.classList.add('wobble');sfx.step();await sleep(500);sfx.step();await sleep(500);sfx.step();await sleep(500);
   if(!alive(t))return;b.remove();
   // update collection
-  const prev=S.caught[c.id];let title,sub,newSh=false,grewUp=false;
-  if(!prev){const sh=Math.random()<1/12;S.caught[c.id]={lv:1,sh,d:Date.now()};newSh=sh;title=`You caught ${c.name}!`;sub=sh?'A sparkly one! Super rare!':'New critter for your book!'}
+  const prev=S.caught[c.id];let title,sub,tk,newSh=false,grewUp=false;
+  if(!prev){const sh=Math.random()<1/12;S.caught[c.id]={lv:1,sh,d:Date.now()};newSh=sh;title=`You caught ${c.name}!`;tk=[L('caught'),CK(c)];sub=sh?'A sparkly one! Super rare!':'New critter for your book!'}
   else{prev.lv=Math.min(prev.lv+1,5);if(!prev.sh&&Math.random()<.2){prev.sh=true;newSh=true}grewUp=prev.lv===3;
-    title=grewUp?`${c.name} grew up!`:`${c.name} got bigger!`;sub=newSh?`And now ${c.name} sparkles!`:`Level ${prev.lv} of 5`}
+    title=grewUp?`${c.name} grew up!`:`${c.name} got bigger!`;tk=[CK(c),L(grewUp?'grewup':'bigger')];sub=newSh?`And now ${c.name} sparkles!`:`Level ${prev.lv} of 5`}
   S.trips.push({d:Date.now(),wid:t.w.id,said:t.said});save();
   sfx.fanfare();confetti();
   const r=$('#result');
   r.innerHTML=`<div class="rcard">${cSVG(c)}<h2 class="rtitle">${esc(title)}</h2><p class="rsub">${esc(sub)}</p>
     <div class="rbtns"><button class="btn2 go" id="r-again">Play again</button><button class="btn2" id="r-book">Critter Book</button><button class="btn2" id="r-map">Map</button></div></div>`;
   r.hidden=false;
-  say(title+(nm()?` Great job, ${nm()}!`:''));
+  speakLine(nm()?[...tk,L('greatjob'),NK()]:tk,title+(nm()?` Great job, ${nm()}!`:''));
   $('#r-again').onclick=()=>{const w=t.w;endTrip();startTrip(w)};
   $('#r-book').onclick=()=>{endTrip();show('book')};
   $('#r-map').onclick=()=>{endTrip();show('map')};
@@ -797,7 +879,7 @@ function renderBook(){
               :`<div class="bcard">${critterSVG(c,{sil:true})}<span class="bname">???</span></div>`}).join('')}</div></section>`}).join('');
 }
 $('#book').addEventListener('click',e=>{const b=e.target.closest('.bcard.caught');if(!b)return;const c=ALLC[b.dataset.c],s=S.caught[c.id];
-  sfx.pop();say(c.name+'!');
+  sfx.pop();speakLine([CK(c)],c.name+'!');
   modal(`${cSVG(c)}<h2>${esc(c.name)}${s.sh?' ✨':''}</h2><p>${s.lv>=3?'All grown up.':'Still little. Play its island again to help it grow.'}<br>Level ${s.lv} of 5</p><button class="btn2 go" data-close>Yay!</button>`)});
 
 function modal(html){const m=$('#modal');m.innerHTML=`<div class="mcard">${html}</div>`;m.hidden=false;
@@ -813,7 +895,7 @@ function renderGrown(){
   $('#g-worlds').innerHTML=WORLDS.map(w=>`<label class="wtoggle"><input type="checkbox" id="gw-${w.id}" data-w="${w.id}" ${S.worlds[w.id]?'checked':''}><div><b>${w.name} · ${w.a} vs ${w.b}</b><span>${esc(w.note)} Words: ${w.pairs.map(p=>p.join('/')).join(', ')}.</span></div></label>`).join('');
   renderRec();renderProg();
 }
-$('#g-name').addEventListener('input',e=>{S.name=e.target.value.slice(0,20);save()});
+$('#g-name').addEventListener('input',e=>{S.name=e.target.value.slice(0,20);save();if(gLineTab==='name')renderLines()});
 $('#g-len').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.len=+b.dataset.v;save();renderGrown()});
 $('#g-parade').addEventListener('change',e=>{S.parade=e.target.checked;save()});
 $('#g-worlds').addEventListener('change',e=>{const w=e.target.dataset.w;if(!w)return;S.worlds[w]=e.target.checked;if(!Object.values(S.worlds).some(Boolean)){S.worlds.kt=true;e.target.checked=w==='kt'}save()});
@@ -821,30 +903,47 @@ $('#g-close').onclick=()=>{hush();show('map')};
 
 function tabs(el,cur,onPick){el.innerHTML=WORLDS.map(w=>`<button data-w="${w.id}" aria-pressed="${w.id===cur}">${w.a} vs ${w.b}</button>`).join('');
   el.onclick=e=>{const b=e.target.closest('button');if(b)onPick(b.dataset.w)}}
-let recBusy=null;
+let recBusy=null,gLineTab='lines';
+const ICO_REC='<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="currentColor" stroke="none"/></svg>',
+  ICO_PLAY='<svg class="ico" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>',
+  ICO_DEL='<svg class="ico" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+function clipStatus(k){return clipSrc[k]==='local'?(repoClip[k]?'Your voice · new take, this iPad only':'Your voice · this iPad only'):clipSrc[k]==='repo'?'Your voice · saved in game':'iPad voice'}
+/* One row: k = recording key, label = what to say, speak = what the iPad voice reads, note = extra hint */
+function recRow(k,label,thumb,speak,note){return `<div class="recrow" data-k="${esc(k)}" data-t="${esc(speak)}"><div class="thumb">${thumb}</div>
+    <div class="w"><b>${esc(label)}</b><small class="${clipURL[k]?'mine':''}">${note?esc(note)+' · ':''}${clipStatus(k)}</small></div>
+    <button class="rb rec" data-a="rec" aria-label="Record ${esc(label)}">${ICO_REC}</button>
+    <button class="rb" data-a="play" aria-label="Play ${esc(label)}">${ICO_PLAY}</button>
+    <button class="rb" data-a="del" aria-label="Delete recording for ${esc(label)}" ${clipSrc[k]==='local'?'':'disabled'}>${ICO_DEL}</button></div>`}
 function renderRec(){
   tabs($('#g-rectabs'),gRecWorld,w=>{gRecWorld=w;renderRec()});
   const w=WMAP[gRecWorld],words=w.pairs.flat();
   $('#g-reccount').textContent=`${words.filter(x=>clipURL[x]).length} of ${words.length} words recorded in your voice`;
-  $('#g-reclist').innerHTML=words.map(x=>`<div class="recrow" data-w="${esc(x)}"><div class="thumb">${pic(w,x).replace('class="picbox"','')}</div>
-    <div class="w"><b>${esc(x)}</b><small class="${clipURL[x]?'mine':''}">${clipURL[x]?'Your voice':'iPad voice'}</small></div>
-    <button class="rb rec" data-a="rec" aria-label="Record ${esc(x)}"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="currentColor" stroke="none"/></svg></button>
-    <button class="rb" data-a="play" aria-label="Play ${esc(x)}"><svg class="ico" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></button>
-    <button class="rb" data-a="del" aria-label="Delete recording for ${esc(x)}" ${clipURL[x]?'':'disabled'}><svg class="ico" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`).join('');
-}
-$('#g-reclist').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const row=b.closest('.recrow'),w=row.dataset.w,a=b.dataset.a;ac();
-  if(a==='play'){playWord(w);return}
-  if(a==='del'){try{await idb.del(w)}catch(err){}if(clipURL[w])URL.revokeObjectURL(clipURL[w]);delete clipURL[w];delete clipBuf[w];renderRec();return}
+  $('#g-reclist').innerHTML=words.map(x=>recRow(x,x,pic(w,x).replace('class="picbox"',''),x,'')).join('');
+  renderLines()}
+function renderLines(){
+  const T=[['lines','Game lines'],['crit','Critter names'],['name','Child’s name']];
+  $('#g-linetabs').innerHTML=T.map(([id,t])=>`<button data-t="${id}" aria-pressed="${id===gLineTab}">${t}</button>`).join('');
+  let rows=[],keys=[];
+  if(gLineTab==='lines'){rows=LINES.map(([id,text,note])=>recRow(L(id),text,'<span class="emo">💬</span>',text.replace(/…/g,' '),note));keys=LINES.map(x=>L(x[0]))}
+  else if(gLineTab==='crit'){const all=WORLDS.flatMap(w=>CRIT[w.id]);rows=all.map(c=>recRow(CK(c),c.name,cSVG(c),c.name,''));keys=all.map(CK)}
+  else if(nm()){rows=[recRow(NK(),nm(),'<span class="emo">⭐</span>',nm(),'')];keys=[NK()]}
+  $('#g-linecount').textContent=gLineTab==='name'&&!nm()?'Type your child’s name in the name box above first.':`${keys.filter(k=>clipURL[k]).length} of ${keys.length} recorded in your voice`;
+  $('#g-linelist').classList.toggle('wide',gLineTab==='lines');$('#g-linelist').innerHTML=rows.join('')}
+$('#g-linetabs').onclick=e=>{const b=e.target.closest('button');if(b){gLineTab=b.dataset.t;renderLines()}};
+async function onRecClick(e){const b=e.target.closest('button');if(!b)return;const row=b.closest('.recrow'),k=row.dataset.k,a=b.dataset.a;ac();
+  if(a==='play'){hush();clipURL[k]?playClip(k):say(row.dataset.t);return}
+  if(a==='del'){try{await idb.del(k)}catch(err){}await clearClip(k);renderRec();return}
   if(a==='rec'){
     if(recBusy){recBusy.stop=true;return}
     const ctl={stop:false};recBusy=ctl;b.classList.add('on');hush();
     try{const blob=await recordClip(ctl);const buf=await blob.arrayBuffer();
       if(buf.byteLength<1500)throw new Error('short');
-      await idb.put(w,{buf,type:blob.type});if(clipURL[w])URL.revokeObjectURL(clipURL[w]);clipURL[w]=URL.createObjectURL(blob);delete clipBuf[w];await decodeClip(w,buf);
-      recBusy=null;renderRec();await playWord(w)}
+      await idb.put(k,{buf,type:blob.type});await setClip(k,buf,blob.type,'local');
+      recBusy=null;renderRec();await playClip(k)}
     catch(err){recBusy=null;b.classList.remove('on');
       toast(err&&err.name==='NotAllowedError'?'Microphone is blocked. Allow it in Settings › Safari › Microphone.':err&&err.message==='short'?'That was too short. Try again.':'Recording didn’t work on this device.')}
-  }});
+  }}
+$('#g-reclist').addEventListener('click',onRecClick);$('#g-linelist').addEventListener('click',onRecClick);
 
 function stats(wid,days){const since=days?Date.now()-days*864e5:0,w=WMAP[wid],per={};
   for(const p of w.pairs)for(const x of p)per[x]={h:0,hn:0,s1:0,s2:0,sn:0};
@@ -888,8 +987,9 @@ armed($('#g-reset-log'),'Clear practice history',()=>{S.log=[];S.trips=[];save()
 function welcome(){
   modal(`${critterSVG(CRIT.kt[0],{})}<h2>Welcome!</h2><p>Who’s playing today?</p><input id="w-name" type="text" maxlength="20" autocomplete="off" placeholder="Name">
     <button class="btn2 go" id="w-go">Let’s go!</button><p class="note">Grown-ups: press and hold the slider button in the bottom corner to record your voice and see progress.</p>`);
-  $('#w-go').onclick=()=>{S.name=$('#w-name').value.trim().slice(0,20);S.setup=true;save();$('#modal').hidden=true;ac();hi();say(nm()?`Hi ${nm()}! Let's catch some critters!`:`Let's catch some critters!`)}}
+  $('#w-go').onclick=()=>{S.name=$('#w-name').value.trim().slice(0,20);S.setup=true;save();$('#modal').hidden=true;ac();hi();speakLine(nm()?[L('hello'),NK(),L('lets')]:[L('lets')],nm()?`Hi ${nm()}! Let's catch some critters!`:`Let's catch some critters!`)}}
 document.addEventListener('pointerdown',()=>{ac();if(!AU.src){AU.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';AU.play().catch(()=>{})}});
+$('#g-export').onclick=()=>{ac();exportVoices()};
 loadClips();show('map');if(!S.setup)welcome();
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
