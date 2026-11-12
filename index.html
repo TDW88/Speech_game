@@ -62,11 +62,13 @@ img{max-width:100%}
 .island.locked{filter:saturate(.25) brightness(.92)}
 .island.locked .mascot{animation:none}
 .lockbadge{position:absolute;top:16%;right:16%;width:44px;height:44px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:24px;color:var(--ink-soft);box-shadow:0 3px 0 rgba(34,52,90,.2)}
-.mapbar{display:flex;justify-content:center;align-items:center;gap:16px;padding-bottom:6px}
+.mapbar{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:16px;padding-bottom:6px}
 .bigbtn{display:inline-flex;align-items:center;gap:12px;font-family:var(--display);font-weight:700;font-size:clamp(20px,2.6vw,26px);
   background:var(--sun);color:var(--ink);padding:14px 28px;border-radius:999px;box-shadow:0 6px 0 #c99a12;border:3px solid var(--ink)}
 .bigbtn:active{transform:translateY(4px);box-shadow:0 2px 0 #c99a12}
 .bigbtn .ico{font-size:30px}
+.bigbtn.alt{background:#fff;box-shadow:0 6px 0 rgba(34,52,90,.3)}
+.bigbtn.alt:active{box-shadow:0 2px 0 rgba(34,52,90,.3)}
 .pill{font-family:var(--body);font-weight:700;font-size:15px;background:var(--ink);color:#fff;border-radius:999px;padding:2px 10px;font-variant-numeric:tabular-nums}
 .gear{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));width:52px;height:52px;border-radius:50%;
   background:rgba(255,255,255,.55);color:var(--ink-soft);display:grid;place-items:center;font-size:26px;z-index:5}
@@ -259,6 +261,47 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
 .critter .tw:nth-of-type(2n){animation-delay:.5s}
 .confetti{position:fixed;top:-20px;width:12px;height:18px;border-radius:3px;z-index:35;pointer-events:none;animation:fall linear forwards}
 
+/* Practice: pick an island and a sound position, then flashcards */
+#scr-practice{background:linear-gradient(var(--sky-hi),#bfe6ff);overflow-y:auto}
+.pwrap{width:100%;max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:12px;padding-bottom:24px}
+.ptitle{font-family:var(--display);font-size:clamp(22px,3vw,28px);margin:8px 0 0}
+.pisl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (min-width:700px){.pisl{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.pisl button{display:flex;flex-direction:column;align-items:center;gap:2px;background:#fff;border-radius:24px;padding:8px 8px 12px;border:4px solid transparent;box-shadow:0 5px 0 rgba(34,52,90,.2);min-width:0}
+.pisl button .critter{width:min(100%,110px)}
+.pisl button[aria-pressed=true]{border-color:var(--ink);background:color-mix(in srgb,var(--isl) 30%,#fff)}
+.pisl button.locked{filter:saturate(.25);opacity:.7}
+.pisl .pn{font-family:var(--display);font-weight:700;font-size:19px;text-align:center}
+.pisl .ps{font-weight:700;font-size:15px;background:var(--isl);border-radius:999px;padding:1px 12px}
+.ppos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (min-width:700px){.ppos{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.ppos button{display:flex;flex-direction:column;align-items:center;gap:4px;background:#fff;border-radius:22px;padding:10px 8px;border:4px solid transparent;box-shadow:0 5px 0 rgba(34,52,90,.2);min-width:0}
+.ppos button[aria-pressed=true]{border-color:var(--ink);background:#fff6cf}
+.ppos .pe{font-size:44px;line-height:1.1}
+.ppos b{font-family:var(--display);font-size:21px}
+.ppos .px{font-size:17px;font-weight:600}
+.ppos small{font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.4px}
+.tgt{color:var(--coral);text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px}
+.pgo{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:6px}
+.pgo .pcrit{width:min(30vw,140px)}
+.pgo .pcrit .critter{width:100%;animation:bob 2.2s ease-in-out infinite}
+.pgo p{margin:0;font-family:var(--display);font-weight:600;font-size:20px;text-align:center}
+.flashwrap{display:flex;align-items:flex-end;justify-content:center;gap:clamp(10px,3vw,36px);width:min(96vw,900px)}
+.helper{width:min(26vh,200px,30vw);flex:none}
+.helper .critter{width:100%;animation:bob 2s ease-in-out infinite}
+.helper.happy .critter{animation:hop .5s 2}
+.fcard{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;width:min(46vh,380px,62vw);background:#fff;border-radius:34px;border:6px solid #fff;
+  box-shadow:0 10px 0 rgba(34,52,90,.2);padding:14px 12px 16px;animation:popin .45s}
+.fcard:active{transform:scale(.98)}
+.fcard.good{border-color:var(--sun)}
+.fcard.again{animation:wiggle .5s 2}
+.fcard .fpic{width:100%;aspect-ratio:4/3;display:grid;place-items:center}
+.fcard .fpic .picbox img{width:80%;height:80%}
+.fcard .fword{font-family:var(--display);font-weight:700;font-size:clamp(30px,5vw,46px);line-height:1.1;letter-spacing:.5px}
+.fcard .ftag{position:absolute;top:10px;left:12px;font-size:13px;font-weight:700;color:var(--ink-soft);background:var(--panel);border-radius:999px;padding:3px 10px}
+.fcard .fear{position:absolute;top:8px;right:10px;font-size:24px;color:var(--ink-soft)}
+@media (max-aspect-ratio:3/4){.flashwrap{flex-direction:column-reverse;align-items:center}.helper{width:min(20vh,140px)}}
+
 @keyframes bob{50%{transform:translateY(-8px)}}
 @keyframes march{from{transform:translateY(0) rotate(-4deg)}to{transform:translateY(-14px) rotate(4deg)}}
 @keyframes popin{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
@@ -285,6 +328,7 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
   <div class="islands" id="islands"></div>
   <div class="mapbar">
     <button class="bigbtn" id="btn-book"><svg class="ico" viewBox="0 0 24 24"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg>Critter Book <span class="pill" id="bookcount">0</span></button>
+    <button class="bigbtn alt" id="btn-practice"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/></svg>Practice</button>
   </div>
   <button class="gear" id="btn-grown" aria-label="Grown-ups: press and hold">
     <svg class="ico" viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>
@@ -332,6 +376,21 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
     </div>
   </div>
 
+  <div class="stage" id="st-flash" hidden>
+    <div class="say-bubble" id="flash-say">Say it!</div>
+    <div class="flashwrap">
+      <div class="helper" id="flash-helper"></div>
+      <button class="fcard" id="fcard" aria-label="Hear the word"></button>
+    </div>
+    <div class="parent">
+      <span class="plabel">Grown-up: how did it sound?</span>
+      <button id="f-yes">Said it right</button>
+      <button id="f-no">Not yet</button>
+      <button class="alt" id="f-model">Play model</button>
+      <button class="alt" id="f-skip">Skip</button>
+    </div>
+  </div>
+
   <div class="stage" id="st-catch" hidden>
     <div class="say-bubble" id="catch-say">Say its name!</div>
     <div class="catchwrap" id="catchwrap"></div>
@@ -351,6 +410,21 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
   <div id="book"></div>
 </section>
 
+<!-- PRACTICE -->
+<section id="scr-practice" class="screen" hidden>
+  <div class="bookhead">
+    <button class="iconbtn" id="prac-home" aria-label="Back to the map"><svg class="ico" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></button>
+    <h2>Practice</h2>
+  </div>
+  <div class="pwrap">
+    <h3 class="ptitle">Pick an island</h3>
+    <div class="pisl" id="p-isl"></div>
+    <h3 class="ptitle">Where is the sound?</h3>
+    <div class="ppos" id="p-pos"></div>
+    <div class="pgo"><div class="pcrit" id="p-crit"></div><div><p id="p-msg"></p></div><button class="bigbtn" id="p-start">Start</button></div>
+  </div>
+</section>
+
 <!-- GROWN-UPS -->
 <section id="scr-grown" class="screen" hidden>
   <div class="gwrap">
@@ -366,6 +440,7 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
         <div class="seg" id="g-len"><button data-v="2">2 (about 3 min)</button><button data-v="3">3 (about 4 min)</button><button data-v="4">4 (about 6 min)</button></div>
       </div>
       <label class="row"><input type="checkbox" id="g-parade" style="width:22px;height:22px;accent-color:var(--mint)"> Start each trip with the listening parade</label>
+      <label class="row"><input type="checkbox" id="g-fauto" style="width:22px;height:22px;accent-color:var(--mint)"> In Practice, play each word first so he can copy it (turn off when he’s ready to name the pictures himself)</label>
     </div>
 
     <div class="gpanel">
@@ -377,7 +452,7 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
     <div class="gpanel">
       <h3>Your voice</h3>
       <p>Tap the red button and say the word once, clearly. It stops by itself and plays back. Until a word has your recording, the iPad voice reads it.</p>
-      <div class="tabs" id="g-rectabs"></div>
+      <div class="btnrow"><div class="tabs" id="g-rectabs"></div><div class="seg" id="g-recset"><button data-v="game">Game words</button><button data-v="flash">Practice words</button></div></div>
       <div class="note" id="g-reccount"></div>
       <div class="reclist" id="g-reclist"></div>
     </div>
@@ -411,6 +486,7 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
         <li>In the Café, he names the order card. Tap the word you actually <em>heard</em>, even if it’s the wrong one. When he says “tea” for “cookie,” the critter brings tea, and that mix-up teaches him that sounds change meaning.</li>
         <li>After a mix-up, your model plays and he gets one more try. If it’s still hard, the game moves on, as the therapist asked.</li>
         <li>Use <b>Skip</b> if he didn’t really try (distracted, silly voice). Skipped words aren’t counted.</li>
+        <li><b>Practice</b> (on the map) is flashcards for one island’s sound at the start, middle or end of words. Tap <b>Said it right</b> or <b>Not yet</b>. After “Not yet” your model plays and he gets one more try. Ten cards help one of that island’s critters grow.</li>
         <li>Short and often beats long: one or two trips a day. Stop while he still wants more.</li>
         <li>If he’s stuck on K, ask the therapist which cue she uses. Common ones are a little “cough” sound in the back of the throat or keeping the tongue tip down. Use her words so the cues match.</li>
       </ul>
@@ -456,6 +532,29 @@ const WORLDS = [
    emo:{light:'💡',white:'⚪',lock:'🔒',walk:'🚶',lick:'👅',wick:'🕯️',lake:'🏞️',wake:'⏰'}},
 ];
 const WMAP = Object.fromEntries(WORLDS.map(w=>[w.id,w]));
+/* Flashcard words for Practice. Each island practices its target sound (the first sound of the pair) at the
+   beginning, middle and end of words. Words are sorted by where the SOUND is, not the spelling.
+   "[ ]" marks the letters that make the sound, so the card can highlight them. Picked to be things a child
+   can recognise from a picture, and each word has the sound in only one place. */
+const PRACTICE = {
+  kt:{ini:'[c]at|🐱 [c]ow|🐄 [c]ar|🚗 [c]up|🥤 [c]oat|🧥 [c]orn|🌽 [k]ey|🔑 [k]ite|🪁 [k]ing|🤴 [k]iss|💋 [c]ap|🧢 [c]an|🥫 [c]andy|🍬 [c]arrot|🥕 [c]astle|🏰 [c]oin|🪙 [c]amera|📷 [k]angaroo|🦘 [k]oala|🐨 [c]omputer|💻 [c]anoe|🛶 [c]old|🥶 [k]id|🧒',
+      med:'mon[k]ey|🐒 ro[ck]et|🚀 chi[ck]en|🐔 ba[c]on|🥓 pi[ck]le|🥒 tur[k]ey|🦃 ra[cc]oon|🦝 ta[c]o|🌮 ho[ck]ey|🏒 ti[ck]et|🎟️ bro[cc]oli|🥦 pop[c]orn|🍿 pump[k]in|🎃 o[c]topus|🐙 snea[k]er|👟 du[ck]ling|🐥 spea[k]er|🔈 bas[k]et|🧺 ja[ck]et|🥼 lu[ck]y|🍀 so[cc]er|⚽ bu[ck]et|🪣 heli[c]opter|🚁',
+      fin:'boo[k]|📖 du[ck]|🦆 so[ck]|🧦 ro[ck]|🪨 bi[k]e|🚲 mil[k]|🥛 tru[ck]|🚚 sna[k]e|🐍 lo[ck]|🔒 stea[k]|🥩 la[k]e|🏞️ shar[k]|🦈 hoo[k]|🪝 drin[k]|🧃 for[k]|🍴 bla[ck]|⬛ smo[k]e|💨 che[ck]|✅ bri[ck]|🧱 lipsti[ck]|💄 mas[k]|🎭'},
+  gd:{ini:'[g]oat|🐐 [g]ame|🎮 [g]ift|🎁 [g]irl|👧 [g]uitar|🎸 [g]orilla|🦍 [g]old|🥇 [g]oal|🥅 [g]as|⛽ [g]host|👻 [g]olf|⛳ [g]ear|⚙️ [g]own|👗 [g]ood|👍 [g]arbage|🗑️ [g]ecko|🦎 [g]oldfish|🐠 [g]arlic|🧄 [g]alaxy|🌌',
+      med:'dra[g]on|🐉 ti[g]er|🐯 spa[gh]etti|🍝 kan[g]aroo|🦘 alli[g]ator|🐊 ba[g]el|🥯 bur[g]er|🍔 pi[gg]y|🐷 do[gg]y|🐶 ea[g]le|🦅 fin[g]er|☝️ an[g]ry|😠 ma[g]net|🧲 pen[g]uin|🐧 lu[gg]age|🧳 trian[g]le|🔺 yo[g]a|🧘 ji[g]saw|🧩 ja[g]uar|🐆 e[gg]plant|🍆',
+      fin:'bu[g]|🐛 ba[g]|👜 pi[g]|🐖 do[g]|🐕 e[gg]|🥚 fro[g]|🐸 fla[g]|🚩 le[g]|🦵 hu[g]|🤗 mu[g]|☕ lo[g]|🪵 hedgeho[g]|🦔 hotdo[g]|🌭 ladybu[g]|🐞 di[g]|⛏️ ta[g]|🏷️ jo[g]|🏃 plu[g]|🔌 shru[g]|🤷 fo[g]|🌫️'},
+  ss:{ini:'[sh]ip|🚢 [sh]oe|👞 [sh]ell|🐚 [sh]eep|🐑 [sh]ark|🦈 [sh]irt|👕 [sh]orts|🩳 [sh]ower|🚿 [sh]ield|🛡️ [sh]rimp|🦐 [sh]ampoo|🧴 [sh]op|🛍️ [sh]e|👧 [sh]ine|☀️ [sh]ock|⚡ [sh]out|📢 [sh]ave|🪒 [ch]ef|🧑‍🍳 [sh]ake|🤝',
+      med:'fi[sh]ing|🎣 mu[sh]room|🍄 sun[sh]ine|🌞 sta[ti]on|🚉 po[ti]on|🧪 fla[sh]light|🔦 milk[sh]ake|🥤 ti[ss]ue|🤧 vaca[ti]on|🏖️ magi[ci]an|🎩 deli[ci]ous|😋 su[sh]i|🍣 musi[ci]an|🎻 invita[ti]on|💌 construc[ti]on|🚧',
+      fin:'fi[sh]|🐟 di[sh]|🍽️ bru[sh]|🖌️ wa[sh]|🧼 tra[sh]|🗑️ spla[sh]|💦 cra[sh]|💥 ca[sh]|💰 lea[sh]|🦮 bu[sh]|🌳 musta[ch]e|🥸 wi[sh]|🌠 fla[sh]|📸 hu[sh]|🤫 poli[sh]|💅 swi[sh]|🏀'},
+  lw:{ini:'[l]ion|🦁 [l]eaf|🍃 [l]emon|🍋 [l]og|🪵 [l]adder|🪜 [l]adybug|🐞 [l]eg|🦵 [l]ips|👄 [l]izard|🦎 [l]aptop|💻 [l]ettuce|🥬 [ll]ama|🦙 [l]obster|🦞 [l]unch|🍱 [l]etter|✉️ [l]amb|🐑 [l]augh|😂 [l]ove|❤️ [l]ibrary|📚 [l]eopard|🐆 [l]ightning|⚡ [l]ock|🔒 [l]ake|🏞️ [l]ight|💡 [l]ick|👅',
+      med:'ba[ll]oon|🎈 ye[ll]ow|💛 co[l]or|🎨 do[ll]ar|💵 sa[l]ad|🥗 e[l]ephant|🐘 he[l]icopter|🚁 o[l]ive|🫒 me[l]on|🍈 pi[l]ot|🧑‍✈️ po[l]ice|👮 fami[l]y|👪 umbre[ll]a|☂️ tu[l]ip|🌷 sai[l]ing|⛵ vo[l]cano|🌋 he[ll]o|👋 Ha[ll]oween|🎃 si[ll]y|🤪 do[l]phin|🐬 ga[l]axy|🌌 ru[l]er|📏 toi[l]et|🚽 is[l]and|🏝️ waterme[l]on|🍉 e[l]evator|🛗 ambu[l]ance|🚑 te[l]evision|📺 caterpi[ll]ar|🐛',
+      fin:'ba[ll]|⚽ be[ll]|🔔 ow[l]|🦉 snai[l]|🐌 wha[l]e|🐳 app[l]e|🍎 poo[l]|🏊 schoo[l]|🏫 sea[l]|🦭 came[l]|🐪 squirre[l]|🐿️ turt[l]e|🐢 penci[l]|✏️ do[ll]|🪆 mai[l]|📬 bow[l]|🥣 smi[l]e|😊 bubb[l]e|🫧 waff[l]e|🧇 pretze[l]|🥨 nood[l]e|🍜 hospita[l]|🏥 beet[l]e|🪲'},
+};
+const POS=[{id:'ini',kid:'Beginning',gr:'initial'},{id:'med',kid:'Middle',gr:'medial'},{id:'fin',kid:'End',gr:'final'}];
+const POSMAP=Object.fromEntries(POS.map(p=>[p.id,p]));
+/* Parsed cards per island: {w: word, d: word with [target] marks, e: emoji, pos} */
+const CARDS=Object.fromEntries(Object.entries(PRACTICE).map(([wid,o])=>[wid,POS.flatMap(p=>o[p.id].trim().split(/\s+/).map(x=>{const [d,e]=x.split('|');return {w:d.replace(/[\[\]]/g,''),d,e,pos:p.id}}))]));
+const FLASH_N=10;
 
 function C(id,name,col,bel,acc,shape,ears,tail,pat,eyes,extra){return {id,name,col,bel,acc,shape,ears,tail,pat,eyes,extra}}
 const CRIT = {
@@ -486,7 +585,7 @@ const PRAISE_FIND=['Peekaboo!','You found it!','There it is!','Great listening!'
 const PRAISE_CAFE=['Yum!','Perfect!','Coming right up!','Just right!','Thank you!'];
 
 /* ================= STATE ================= */
-const DEF={name:'',worlds:{kt:true,gd:false,ss:false,lw:false},caught:{},log:[],trips:[],len:3,parade:true,setup:false,lastPairs:{}};
+const DEF={name:'',worlds:{kt:true,gd:false,ss:false,lw:false},caught:{},log:[],trips:[],len:3,parade:true,setup:false,lastPairs:{},pWorld:'kt',pPos:'ini',fAuto:true};
 let S=(()=>{try{const s=JSON.parse(localStorage.getItem('critter-catch'));return s?Object.assign({},DEF,s,{worlds:Object.assign({},DEF.worlds,s.worlds||{})}):{...DEF}}catch(e){return {...DEF}}})();
 function save(){try{if(S.log.length>8000)S.log=S.log.slice(-8000);localStorage.setItem('critter-catch',JSON.stringify(S))}catch(e){}}
 
@@ -612,7 +711,8 @@ const LINES=[
   ['join','…wants to join your team! Say…','Between a critter’s name, said twice'],
   ['grow','…wants to grow bigger! Say…','Between a critter’s name, said twice'],
   ['caught','You caught…','Before a critter’s name'],['grewup','…grew up!','After a critter’s name'],
-  ['bigger','…got bigger!','After a critter’s name'],['greatjob','Great job…','Before your child’s name']];
+  ['bigger','…got bigger!','After a critter’s name'],['greatjob','Great job…','Before your child’s name'],
+  ['practice','…wants to practice with you! Say each picture.','After a critter’s name'],['sayit','Say it!','Practice cards']];
 const L=id=>'line:'+id,CK=c=>'crit:'+c.id,NK=()=>'name:'+nm().toLowerCase();
 async function speakLine(keys,text,opt){const g=++speakGen;
   if(keys.length&&keys.every(k=>clipURL[k])){for(const k of keys){if(g!==speakGen)return;await playClip(k)}return}
@@ -684,7 +784,7 @@ async function recordClip(ctl){await mic.get();const mime=pickMime();if(mime===n
 
 /* ================= SCREENS ================= */
 function show(id){for(const s of document.querySelectorAll('.screen'))s.hidden=s.id!=='scr-'+id;
-  if(id==='map')renderMap();if(id==='book')renderBook();if(id==='grown')renderGrown()}
+  if(id==='map')renderMap();if(id==='book')renderBook();if(id==='grown')renderGrown();if(id==='practice')renderPractice()}
 function hi(){$('#hi').textContent=nm()?`Hi, ${nm()}! Pick an island.`:'Hi, explorer! Pick an island.'}
 function caughtCount(wid){return CRIT[wid].filter(c=>S.caught[c.id]).length}
 
@@ -704,6 +804,7 @@ $('#islands').addEventListener('click',e=>{const b=e.target.closest('.island');i
   if(!S.worlds[w.id]){b.animate([{transform:'rotate(0)'},{transform:'rotate(-4deg)'},{transform:'rotate(4deg)'},{transform:'rotate(0)'}],{duration:400});sfx.soft();speakLine([L('asleep')],'This island is still asleep. Ask a grown-up!');return}
   startTrip(w)});
 $('#btn-book').onclick=()=>{ac();sfx.pop();show('book')};
+$('#btn-practice').onclick=()=>{ac();sfx.pop();show('practice')};
 $('#book-home').onclick=()=>{hush();show('map')};
 
 /* hold-to-open grown-ups */
@@ -728,7 +829,7 @@ function wakeOff(){try{wake&&wake.release()}catch(e){}wake=null}
 function pickPairs(w,n){
   const since=Date.now()-14*864e5, score={};
   for(const p of w.pairs){score[p[0]]=0}
-  for(const e of S.log){if(e.d<since||e.wid!==w.id)continue;const p=w.pairs.find(p=>p.includes(e.w));if(!p)continue;score[p[0]]+=1;if(!e.ok)score[p[0]]-=2}
+  for(const e of S.log){if(e.d<since||e.wid!==w.id||e.k==='f')continue;const p=w.pairs.find(p=>p.includes(e.w));if(!p)continue;score[p[0]]+=1;if(!e.ok)score[p[0]]-=2}
   const last=S.lastPairs[w.id]||[];
   const ranked=w.pairs.map(p=>({p,v:score[p[0]]+Math.random()*4+(last.includes(p[0])?3:0)})).sort((a,b)=>a.v-b.v);
   const out=ranked.slice(0,Math.min(n,w.pairs.length)).map(x=>x.p);S.lastPairs[w.id]=out.map(p=>p[0]);return out}
@@ -855,20 +956,100 @@ async function catchIt(t){
   if(!prev){const sh=Math.random()<1/12;S.caught[c.id]={lv:1,sh,d:Date.now()};newSh=sh;title=`You caught ${c.name}!`;tk=[L('caught'),CK(c)];sub=sh?'A sparkly one! Super rare!':'New critter for your book!'}
   else{prev.lv=Math.min(prev.lv+1,5);if(!prev.sh&&Math.random()<.2){prev.sh=true;newSh=true}grewUp=prev.lv===3;
     title=grewUp?`${c.name} grew up!`:`${c.name} got bigger!`;tk=[CK(c),L(grewUp?'grewup':'bigger')];sub=newSh?`And now ${c.name} sparkles!`:`Level ${prev.lv} of 5`}
-  S.trips.push({d:Date.now(),wid:t.w.id,said:t.said});save();
+  S.trips.push(t.kind==='p'?{d:Date.now(),wid:t.w.id,said:t.said,k:'p'}:{d:Date.now(),wid:t.w.id,said:t.said});save();
   sfx.fanfare();confetti();
   const r=$('#result');
   r.innerHTML=`<div class="rcard">${cSVG(c)}<h2 class="rtitle">${esc(title)}</h2><p class="rsub">${esc(sub)}</p>
     <div class="rbtns"><button class="btn2 go" id="r-again">Play again</button><button class="btn2" id="r-book">Critter Book</button><button class="btn2" id="r-map">Map</button></div></div>`;
   r.hidden=false;
   speakLine(nm()?[...tk,L('greatjob'),NK()]:tk,title+(nm()?` Great job, ${nm()}!`:''));
-  $('#r-again').onclick=()=>{const w=t.w;endTrip();startTrip(w)};
+  $('#r-again').onclick=()=>{const w=t.w;endTrip();t.kind==='p'?startPractice(w,t.pos):startTrip(w)};
   $('#r-book').onclick=()=>{endTrip();show('book')};
   $('#r-map').onclick=()=>{endTrip();show('map')};
 }
 function confetti(){const cols=['#ffcf33','#ff6f59','#2fb86e','#36aee3','#d94c8a','#8f9cff'];
   for(let i=0;i<46;i++){const d=document.createElement('div');d.className='confetti';d.style.left=Math.random()*100+'vw';d.style.background=pick(cols);
     d.style.animationDuration=(1.8+Math.random()*1.8)+'s';d.style.animationDelay=Math.random()*.5+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),4200)}}
+
+/* ================= PRACTICE (flashcards) ================= */
+function hiCard(d){return d.split(/(\[[^\]]+\])/).map(x=>x[0]==='['?`<span class="tgt">${esc(x.slice(1,-1))}</span>`:esc(x)).join('')}
+function cardPic(w,c){if(KT_IMG[c.w])return pic(w,c.w);return `<div class="picbox"><span class="emo" role="img" aria-label="${esc(c.w)}">${c.e}</span></div>`}
+/* Practice grows the island's littlest caught critter. With none caught yet (or all fully grown with some left to find), it catches a new one. */
+function practiceCritter(w){const list=CRIT[w.id],got=list.filter(c=>S.caught[c.id]),grow=got.filter(c=>S.caught[c.id].lv<5);
+  if(grow.length){const lo=Math.min(...grow.map(c=>S.caught[c.id].lv));return{c:pick(grow.filter(c=>S.caught[c.id].lv===lo)),mode:'grow'}}
+  const un=list.filter(c=>!S.caught[c.id]);if(un.length)return{c:un[0],mode:'new'};
+  return{c:pick(list),mode:'grow'}}
+function renderPractice(){
+  if(!S.worlds[S.pWorld])S.pWorld=WORLDS.find(w=>S.worlds[w.id]).id;
+  const w=WMAP[S.pWorld];
+  $('#p-isl').innerHTML=WORLDS.map(x=>{const on=S.worlds[x.id],list=CRIT[x.id],got=list.filter(c=>S.caught[c.id]),m=got.length?got[got.length-1]:list[0];
+    return `<button data-w="${x.id}" style="--isl:${x.isl}" class="${on?'':'locked'}" aria-pressed="${x.id===w.id}" aria-label="${esc(x.name)}${on?'':' (locked)'}">
+      ${critterSVG(m,{lv:got.length?S.caught[m.id].lv:1,shiny:got.length&&S.caught[m.id].sh,sil:!got.length})}<span class="pn">${esc(x.name)}</span><span class="ps">${x.a}</span></button>`}).join('');
+  const ex=p=>CARDS[w.id].find(c=>c.pos===p);
+  $('#p-pos').innerHTML=[...POS.map(p=>{const c=ex(p.id),n=CARDS[w.id].filter(x=>x.pos===p.id).length;
+      return `<button data-p="${p.id}" aria-pressed="${S.pPos===p.id}"><span class="pe">${c.e}</span><b>${p.kid}</b><span class="px">${hiCard(c.d)}</span><small>${p.gr} · ${n} words</small></button>`}),
+    `<button data-p="mix" aria-pressed="${S.pPos==='mix'}"><span class="pe">🔀</span><b>Mix</b><span class="px">all three</span><small>${CARDS[w.id].length} words</small></button>`].join('');
+  const {c,mode}=practiceCritter(w);
+  $('#p-crit').innerHTML=mode==='new'?critterSVG(c,{sil:true}):cSVG(c);
+  $('#p-msg').textContent=mode==='new'?`Practice ${w.a} to find a new critter!`:`Practice ${w.a} to help ${c.name} grow!`;
+}
+$('#p-isl').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const w=WMAP[b.dataset.w];ac();
+  if(!S.worlds[w.id]){b.animate([{transform:'rotate(0)'},{transform:'rotate(-4deg)'},{transform:'rotate(4deg)'},{transform:'rotate(0)'}],{duration:400});sfx.soft();speakLine([L('asleep')],'This island is still asleep. Ask a grown-up!');return}
+  sfx.pop();S.pWorld=w.id;save();renderPractice()});
+$('#p-pos').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;sfx.pop();S.pPos=b.dataset.p;save();renderPractice()});
+$('#p-start').onclick=()=>{ac();startPractice(WMAP[S.pWorld],S.pPos)};
+$('#prac-home').onclick=()=>{hush();show('map')};
+
+/* Fewer recent tries and more recent misses come first, so tricky words come back often */
+function pickCards(w,pos,n){
+  const pool=CARDS[w.id].filter(c=>pos==='mix'||c.pos===pos),since=Date.now()-14*864e5,score={};
+  for(const c of pool)score[c.w]=0;
+  for(const e of S.log){if(e.d<since||e.wid!==w.id||e.k!=='f'||!(e.w in score))continue;score[e.w]+=1;if(!e.ok)score[e.w]-=2}
+  return shuffle(pool.map(c=>({c,v:score[c.w]+Math.random()*3})).sort((a,b)=>a.v-b.v).slice(0,Math.min(n,pool.length)).map(x=>x.c))}
+
+async function startPractice(w,pos){
+  ac();hush();
+  const cards=pickCards(w,pos,FLASH_N);const {c,mode}=practiceCritter(w);
+  T={w,kind:'p',pos,cards,cr:c,mode,stars:Array(cards.length).fill(''),said:0};
+  const t=T;show('trip');renderStars();wakeOn();
+  await flashcards(t);if(!alive(t))return;
+  await catchIt(t);
+}
+async function flashcards(t){
+  stage('flash');const bub=$('#flash-say'),card=$('#fcard'),helper=$('#flash-helper');
+  helper.innerHTML=t.mode==='new'?critterSVG(t.cr,{sil:true}):cSVG(t.cr);
+  const who=t.mode==='new'?'A new critter':t.cr.name;
+  bub.textContent=`${who} wants to practice ${t.w.a}!`;
+  if(t.mode==='new')await say(`A new critter wants to practice with you! Say each picture.`);
+  else await speakLine([CK(t.cr),L('practice')],`${t.cr.name} wants to practice with you! Say each picture.`);
+  let n=0;
+  for(const c of t.cards){if(!alive(t))return;
+    card.className='fcard';void card.offsetWidth;
+    card.innerHTML=`<span class="ftag">${POSMAP[c.pos].kid}</span><span class="fear"><svg class="ico" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg></span><div class="fpic">${cardPic(t.w,c)}</div><div class="fword">${hiCard(c.d)}</div>`;
+    card.setAttribute('aria-label',`${c.w}. Tap to hear it.`);helper.className='helper';
+    const model=()=>playWord(c.w);card.onclick=()=>{ac();hush();model()};$('#f-model').onclick=()=>{hush();model()};
+    bub.textContent=pick(['Say it!','What is it?','Your turn!']);sfx.step();
+    // the grown-up can answer any time, even while the model is still playing
+    const ask=()=>new Promise(res=>{$('#f-yes').onclick=()=>res('yes');$('#f-no').onclick=()=>res('no');$('#f-skip').onclick=()=>res('skip')});
+    let tries=1,result=null,ans=ask();
+    if(S.fAuto){await sleep(300);if(!alive(t))return;await Promise.race([model(),ans])}
+    while(alive(t)){
+      const a=await ans;['#f-yes','#f-no','#f-skip'].forEach(x=>$(x).onclick=null);
+      if(!alive(t))return;
+      if(a==='skip'){result='skip';break}
+      t.said++;
+      if(a==='yes'){card.classList.add('good');helper.classList.add('happy');sfx.ding();bub.textContent=pick(PRAISE_CAFE.concat(PRAISE_FIND.slice(3)));result=tries;
+        if(++n%4===0&&nm())speakLine([L('greatjob'),NK()],`Great job, ${nm()}!`);await sleep(1000);break}
+      if(tries>=2){result=0;sfx.soft();bub.textContent='Good try! Next one.';await sleep(900);break}
+      card.classList.add('again');sfx.soft();bub.textContent='Listen, then try again!';await sleep(300);if(!alive(t))return;await model();tries++;ans=ask()}
+    if(!alive(t))return;
+    if(result!=='skip'){logIt({wid:t.w.id,w:c.w,k:'f',pos:c.pos,ok:result===1?1:0,r:result});addStar(result?'got':'tried')}
+  }
+  card.onclick=null;
+  // the critter only grows if at least one card was tried
+  if(!t.said){endTrip();show('practice');return}
+  await banner(t.mode==='new'?'Here comes a critter!':`${t.cr.name} is ready to grow!`);
+}
 
 /* ================= BOOK ================= */
 function renderBook(){
@@ -891,19 +1072,20 @@ let gRecWorld='kt',gProgWorld='kt',gRange=7;
 function renderGrown(){
   $('#g-name').value=S.name;
   document.querySelectorAll('#g-len button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===S.len)));
-  $('#g-parade').checked=!!S.parade;
-  $('#g-worlds').innerHTML=WORLDS.map(w=>`<label class="wtoggle"><input type="checkbox" id="gw-${w.id}" data-w="${w.id}" ${S.worlds[w.id]?'checked':''}><div><b>${w.name} · ${w.a} vs ${w.b}</b><span>${esc(w.note)} Words: ${w.pairs.map(p=>p.join('/')).join(', ')}.</span></div></label>`).join('');
+  $('#g-parade').checked=!!S.parade;$('#g-fauto').checked=!!S.fAuto;
+  $('#g-worlds').innerHTML=WORLDS.map(w=>`<label class="wtoggle"><input type="checkbox" id="gw-${w.id}" data-w="${w.id}" ${S.worlds[w.id]?'checked':''}><div><b>${w.name} · ${w.a} vs ${w.b}</b><span>${esc(w.note)} Words: ${w.pairs.map(p=>p.join('/')).join(', ')}. Practice cards: ${CARDS[w.id].length} ${w.a} words (${POS.map(p=>CARDS[w.id].filter(c=>c.pos===p.id).length+' '+p.gr).join(', ')}).</span></div></label>`).join('');
   renderRec();renderProg();
 }
 $('#g-name').addEventListener('input',e=>{S.name=e.target.value.slice(0,20);save();if(gLineTab==='name')renderLines()});
 $('#g-len').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.len=+b.dataset.v;save();renderGrown()});
 $('#g-parade').addEventListener('change',e=>{S.parade=e.target.checked;save()});
+$('#g-fauto').addEventListener('change',e=>{S.fAuto=e.target.checked;save()});
 $('#g-worlds').addEventListener('change',e=>{const w=e.target.dataset.w;if(!w)return;S.worlds[w]=e.target.checked;if(!Object.values(S.worlds).some(Boolean)){S.worlds.kt=true;e.target.checked=w==='kt'}save()});
 $('#g-close').onclick=()=>{hush();show('map')};
 
 function tabs(el,cur,onPick){el.innerHTML=WORLDS.map(w=>`<button data-w="${w.id}" aria-pressed="${w.id===cur}">${w.a} vs ${w.b}</button>`).join('');
   el.onclick=e=>{const b=e.target.closest('button');if(b)onPick(b.dataset.w)}}
-let recBusy=null,gLineTab='lines';
+let recBusy=null,gLineTab='lines',gRecSet='game';
 const ICO_REC='<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="currentColor" stroke="none"/></svg>',
   ICO_PLAY='<svg class="ico" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>',
   ICO_DEL='<svg class="ico" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
@@ -916,9 +1098,11 @@ function recRow(k,label,thumb,speak,note){return `<div class="recrow" data-k="${
     <button class="rb" data-a="del" aria-label="Delete recording for ${esc(label)}" ${clipSrc[k]==='local'?'':'disabled'}>${ICO_DEL}</button></div>`}
 function renderRec(){
   tabs($('#g-rectabs'),gRecWorld,w=>{gRecWorld=w;renderRec()});
-  const w=WMAP[gRecWorld],words=w.pairs.flat();
-  $('#g-reccount').textContent=`${words.filter(x=>clipURL[x]).length} of ${words.length} words recorded in your voice`;
-  $('#g-reclist').innerHTML=words.map(x=>recRow(x,x,pic(w,x).replace('class="picbox"',''),x,'')).join('');
+  document.querySelectorAll('#g-recset button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===gRecSet)));
+  const w=WMAP[gRecWorld];
+  const items=gRecSet==='game'?w.pairs.flat().map(x=>({k:x,th:pic(w,x),note:''})):CARDS[w.id].map(c=>({k:c.w,th:cardPic(w,c),note:POSMAP[c.pos].gr}));
+  $('#g-reccount').textContent=`${items.filter(x=>clipURL[x.k]).length} of ${items.length} ${gRecSet==='game'?'game':'practice'} words recorded in your voice`;
+  $('#g-reclist').innerHTML=items.map(x=>recRow(x.k,x.k,x.th.replace('class="picbox"',''),x.k,x.note)).join('');
   renderLines()}
 function renderLines(){
   const T=[['lines','Game lines'],['crit','Critter names'],['name','Child’s name']];
@@ -929,6 +1113,7 @@ function renderLines(){
   else if(nm()){rows=[recRow(NK(),nm(),'<span class="emo">⭐</span>',nm(),'')];keys=[NK()]}
   $('#g-linecount').textContent=gLineTab==='name'&&!nm()?'Type your child’s name in the name box above first.':`${keys.filter(k=>clipURL[k]).length} of ${keys.length} recorded in your voice`;
   $('#g-linelist').classList.toggle('wide',gLineTab==='lines');$('#g-linelist').innerHTML=rows.join('')}
+$('#g-recset').onclick=e=>{const b=e.target.closest('button');if(b){gRecSet=b.dataset.v;renderRec()}};
 $('#g-linetabs').onclick=e=>{const b=e.target.closest('button');if(b){gLineTab=b.dataset.t;renderLines()}};
 async function onRecClick(e){const b=e.target.closest('button');if(!b)return;const row=b.closest('.recrow'),k=row.dataset.k,a=b.dataset.a;ac();
   if(a==='play'){hush();clipURL[k]?playClip(k):say(row.dataset.t);return}
@@ -947,27 +1132,33 @@ $('#g-reclist').addEventListener('click',onRecClick);$('#g-linelist').addEventLi
 
 function stats(wid,days){const since=days?Date.now()-days*864e5:0,w=WMAP[wid],per={};
   for(const p of w.pairs)for(const x of p)per[x]={h:0,hn:0,s1:0,s2:0,sn:0};
-  for(const e of S.log){if(e.wid!==wid||e.d<since||!per[e.w])continue;const r=per[e.w];
+  for(const e of S.log){if(e.wid!==wid||e.d<since||e.k==='f'||!per[e.w])continue;const r=per[e.w];
     if(e.k==='h'){r.hn++;r.h+=e.ok}else{r.sn++;if(e.r===1)r.s1++;if(e.r===1||e.r===2)r.s2++}}
-  const trips=S.trips.filter(x=>x.wid===wid&&x.d>=since).length;return{per,trips,w}}
+  const trips=S.trips.filter(x=>x.wid===wid&&x.d>=since&&x.k!=='p').length;
+  const fl={};for(const p of POS)fl[p.id]={n:0,s1:0,s2:0};let rounds=0;
+  for(const e of S.log){if(e.wid!==wid||e.d<since||e.k!=='f'||!fl[e.pos])continue;const r=fl[e.pos];r.n++;if(e.r===1)r.s1++;if(e.r===1||e.r===2)r.s2++}
+  rounds=S.trips.filter(x=>x.wid===wid&&x.d>=since&&x.k==='p').length;
+  return{per,trips,w,fl,rounds}}
 const pct=(a,b)=>b?Math.round(100*a/b)+'%':'—';
 function renderProg(){
   tabs($('#g-progtabs'),gProgWorld,w=>{gProgWorld=w;renderProg()});
   document.querySelectorAll('#g-range button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===gRange)));
-  const {per,trips,w}=stats(gProgWorld,gRange);
+  const {per,trips,w,fl,rounds}=stats(gProgWorld,gRange);
   const A=w.pairs.map(p=>p[0]),B=w.pairs.map(p=>p[1]),sum=(ws,k)=>ws.reduce((s,x)=>s+per[x][k],0);
   const hn=sum(A,'hn')+sum(B,'hn'),h=sum(A,'h')+sum(B,'h');
   $('#g-stats').innerHTML=`<div class="stat"><b>${trips}</b><span>trips</span></div>
     <div class="stat"><b>${pct(h,hn)}</b><span>picked the right picture (${h}/${hn})</span></div>
     <div class="stat"><b>${pct(sum(A,'s1'),sum(A,'sn'))}</b><span>${w.a} words said right, 1st try (${sum(A,'s1')}/${sum(A,'sn')})</span></div>
     <div class="stat"><b>${pct(sum(A,'s2'),sum(A,'sn'))}</b><span>${w.a} words right after your model</span></div>
-    <div class="stat"><b>${pct(sum(B,'s1'),sum(B,'sn'))}</b><span>${w.b} words said right, 1st try (${sum(B,'s1')}/${sum(B,'sn')})</span></div>`;
+    <div class="stat"><b>${pct(sum(B,'s1'),sum(B,'sn'))}</b><span>${w.b} words said right, 1st try (${sum(B,'s1')}/${sum(B,'sn')})</span></div>
+    <div class="stat"><b>${rounds}</b><span>practice rounds</span></div>
+    ${POS.map(p=>`<div class="stat"><b>${pct(fl[p.id].s1,fl[p.id].n)}</b><span>Practice: ${w.a} ${p.gr}, 1st try (${fl[p.id].s1}/${fl[p.id].n})</span></div>`).join('')}`;
   const cls=(a,b)=>!b?'':a/b>=.8?'hi':a/b<.5?'lo':'';
   $('#g-table').innerHTML=`<thead><tr><th>Word</th><th>Picked right</th><th>Said right, 1st try</th><th>After model</th></tr></thead><tbody>${
     w.pairs.flat().map(x=>{const r=per[x];return `<tr><td><b>${esc(x)}</b></td><td class="${cls(r.h,r.hn)}">${r.hn?`${r.h}/${r.hn}`:'—'}</td><td class="${cls(r.s1,r.sn)}">${r.sn?`${r.s1}/${r.sn}`:'—'}</td><td>${r.sn?`${r.s2}/${r.sn}`:'—'}</td></tr>`}).join('')}</tbody>`;
 }
 $('#g-range').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;gRange=+b.dataset.v;renderProg()});
-function summary(){const {per,trips,w}=stats(gProgWorld,gRange);const fmt=d=>new Date(d).toLocaleDateString(undefined,{month:'short',day:'numeric'});
+function summary(){const {per,trips,w,fl,rounds}=stats(gProgWorld,gRange);const fmt=d=>new Date(d).toLocaleDateString(undefined,{month:'short',day:'numeric'});
   const A=w.pairs.map(p=>p[0]),B=w.pairs.map(p=>p[1]),all=[...A,...B],sum=(ws,k)=>ws.reduce((s,x)=>s+per[x][k],0);
   const range=gRange?`${fmt(Date.now()-(gRange-1)*864e5)} – ${fmt(Date.now())}`:'All time';
   const hard=A.filter(x=>per[x].sn&&per[x].s1<per[x].sn).sort((a,b)=>per[a].s1/per[a].sn-per[b].s1/per[b].sn).slice(0,4).map(x=>`${x} ${per[x].s1}/${per[x].sn}`);
@@ -975,7 +1166,8 @@ function summary(){const {per,trips,w}=stats(gProgWorld,gRange);const fmt=d=>new
     `Pointing to the word I said: ${sum(all,'h')}/${sum(all,'hn')} correct (${pct(sum(all,'h'),sum(all,'hn'))})`,
     `Naming ${w.a} pictures: ${sum(A,'s1')}/${sum(A,'sn')} correct on first try (${pct(sum(A,'s1'),sum(A,'sn'))}), ${sum(A,'s2')}/${sum(A,'sn')} after a model`,
     `Naming ${w.b} pictures: ${sum(B,'s1')}/${sum(B,'sn')} correct on first try (${pct(sum(B,'s1'),sum(B,'sn'))})`,
-    hard.length?`Hardest ${w.a} words: ${hard.join(', ')}`:''].filter((l,i)=>l!==''||i===2).join('\n')}
+    hard.length?`Hardest ${w.a} words: ${hard.join(', ')}`:'',
+    rounds?`Flashcard practice (${rounds} round${rounds===1?'':'s'}), ${w.a} said right on first try: `+POS.filter(p=>fl[p.id].n).map(p=>`${p.gr} ${fl[p.id].s1}/${fl[p.id].n} (${pct(fl[p.id].s1,fl[p.id].n)})`).join(', '):''].filter((l,i)=>l!==''||i===2).join('\n')}
 $('#g-copy').onclick=async()=>{const txt=summary(),box=$('#g-copybox');box.value=txt;box.hidden=false;
   try{await navigator.clipboard.writeText(txt);toast('Copied. Paste it into your email.')}catch(e){box.focus();box.select();toast('Select the text below and copy it.')}};
 function armed(btn,label,fn){btn.onclick=()=>{if(btn.classList.contains('armed')){btn.classList.remove('armed');btn.textContent=label;fn();return}
