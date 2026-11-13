@@ -161,6 +161,11 @@ img{max-width:100%}
 .result{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:rgba(34,52,90,.45);padding:16px}
 .rcard{background:#fff;border-radius:36px;border:5px solid var(--ink);padding:22px 26px 26px;display:flex;flex-direction:column;align-items:center;gap:12px;width:min(92vw,520px);box-shadow:0 12px 0 rgba(0,0,0,.2);animation:popin .5s}
 .rcard .critter{width:min(58vw,280px)}
+.evo{position:relative;width:min(58vw,280px)}
+.evo .from{animation:evoOut 1.4s forwards}
+.evo .to{position:absolute;inset:0;opacity:0;animation:evoIn 1.4s forwards}
+@keyframes evoOut{0%,20%{filter:none;transform:none}25%,35%,45%{filter:brightness(2.6)}30%,40%{filter:none}60%{filter:brightness(4);transform:scale(1.08);opacity:1}64%,100%{opacity:0}}
+@keyframes evoIn{0%,58%{opacity:0;filter:brightness(4);transform:scale(1.15)}64%{opacity:1}100%{opacity:1;filter:none;transform:none}}
 .rtitle{font-family:var(--display);font-weight:700;font-size:clamp(28px,4.4vw,40px);margin:0;text-align:center;text-wrap:balance}
 .rsub{margin:0;font-size:18px;color:var(--ink-soft);text-align:center}
 .rbtns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:6px}
@@ -210,18 +215,26 @@ img{max-width:100%}
 .tabs{display:flex;flex-wrap:wrap;gap:8px}
 .tabs button{padding:7px 14px;border-radius:999px;border:2px solid var(--line);font-weight:600;font-size:15px}
 .tabs button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
-.reclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.reclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:10px}
 .reclist.wide{grid-template-columns:1fr}
 .recrow .w{min-width:0;flex:1}
 .recrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:14px;padding:6px 10px 6px 6px;min-width:0}
-.recrow .thumb{width:52px;height:52px;border-radius:10px;background:var(--panel);flex:none;display:grid;place-items:center;overflow:hidden}
+.recrow .thumb{width:48px;height:48px;border-radius:10px;background:var(--panel);flex:none;display:grid;place-items:center;overflow:hidden}
 .recrow .thumb img{width:100%;height:100%;object-fit:contain}
 .recrow .thumb .emo{font-size:34px}
 .recrow .w{flex:1;min-width:0}
-.recrow .w b{display:block;font-size:17px}
-.recrow .w small{font-size:13px;color:var(--ink-soft)}
-.recrow .w small.mine{color:var(--mint);font-weight:600}
-.rb{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:20px;border:2px solid var(--line);flex:none}
+.recrow .w{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+.recrow .w b{display:block;max-width:100%;font-size:17px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reclist.wide .recrow .w b{white-space:normal}
+.recrow .w small{font-size:13px;color:var(--ink-soft);line-height:1.3}
+.st{display:inline-block;font-size:12px;font-weight:700;line-height:1.5;padding:0 8px;border-radius:999px;background:var(--panel);color:var(--ink-soft);white-space:nowrap}
+.st.mine{background:#dff5e8;color:#17784a}
+.st.new{background:#ffedd5;color:#b45309}
+.rbs{display:flex;gap:6px;flex:none}
+.rechead{grid-column:1/-1;margin:10px 0 0;font-size:14px;letter-spacing:.4px;text-transform:uppercase;color:var(--ink)}
+.rechead span{text-transform:none;letter-spacing:0;font-weight:600;color:var(--ink-soft);margin-left:6px}
+.reclegend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink-soft)}
+.rb{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:20px;border:2px solid var(--line);flex:none}
 .rb.rec{color:#e5384f}
 .rb.rec.on{background:#e5384f;color:#fff;border-color:#e5384f;animation:pulse 1s infinite}
 .rb:disabled{opacity:.35}
@@ -302,6 +315,30 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
 .fcard .fear{position:absolute;top:8px;right:10px;font-size:24px;color:var(--ink-soft)}
 @media (max-aspect-ratio:3/4){.flashwrap{flex-direction:column-reverse;align-items:center}.helper{width:min(20vh,140px)}}
 
+/* Play: Critter Meadow */
+#scr-play{background:linear-gradient(#bfe9ff,#e3f6ff 30%,#a6df84 30%,#7cc95a)}
+.playhint{margin:0 0 8px;text-align:center;font-family:var(--display);font-weight:600;font-size:clamp(17px,2.4vw,22px)}
+.meadow{position:relative;flex:1;min-height:0;margin-bottom:10px;overflow:hidden;border-radius:28px;background:radial-gradient(ellipse at 50% 120%,#6bbf4a,#8fd46b 60%,#a6df84);touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.flower{position:absolute;font-size:22px;opacity:.85;transform:translate(-50%,-50%);pointer-events:none}
+.pc{position:absolute;transform:translate(-50%,-100%);transition-property:left,top;transition-timing-function:ease-in-out;transition-duration:2.4s;cursor:pointer}
+.pc::after{content:'';position:absolute;left:18%;right:18%;bottom:-2%;height:9%;border-radius:50%;background:rgba(30,70,20,.22);z-index:-1}
+.pc .critter{width:100%}
+.pflip.flip{transform:scaleX(-1)}
+.pc.walk .pflip{animation:march .3s ease-in-out infinite alternate}
+.pc.walk .pflip.flip{animation-name:marchflip}
+.pin.hop{animation:hop .45s 2}
+.pin.spin{animation:spin .8s}
+.pin.wobble{animation:wobble .9s}
+.pin.tilt{animation:tilt 1s}
+.heart{position:absolute;font-size:26px;pointer-events:none;transform:translate(-50%,0);animation:floatup 1.6s ease-out forwards;opacity:0;z-index:200}
+.snack{position:absolute;font-size:clamp(30px,5vmin,46px);transform:translate(-50%,-80%);animation:popin .3s;pointer-events:none;z-index:150}
+.snack.eaten{transition:transform .4s,opacity .4s;transform:translate(-50%,-80%) scale(.2);opacity:0}
+.pempty{position:absolute;inset:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;align-content:center;gap:10px;padding:20px;text-align:center}
+.pempty .critter{width:min(22vw,150px)}
+.pempty p{flex-basis:100%;margin:0;font-family:var(--display);font-weight:600;font-size:22px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes marchflip{from{transform:scaleX(-1) translateY(0) rotate(-4deg)}to{transform:scaleX(-1) translateY(-10px) rotate(4deg)}}
+@keyframes floatup{0%{opacity:0;transform:translate(-50%,0) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,-90px) scale(1.15)}}
 @keyframes bob{50%{transform:translateY(-8px)}}
 @keyframes march{from{transform:translateY(0) rotate(-4deg)}to{transform:translateY(-14px) rotate(4deg)}}
 @keyframes popin{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
@@ -329,6 +366,7 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
   <div class="mapbar">
     <button class="bigbtn" id="btn-book"><svg class="ico" viewBox="0 0 24 24"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg>Critter Book <span class="pill" id="bookcount">0</span></button>
     <button class="bigbtn alt" id="btn-practice"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/></svg>Practice</button>
+    <button class="bigbtn alt" id="btn-play"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.5 6.5c3 2 3 9 0 11M18.5 6.5c-3 2-3 9 0 11"/></svg>Play</button>
   </div>
   <button class="gear" id="btn-grown" aria-label="Grown-ups: press and hold">
     <svg class="ico" viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>
@@ -410,6 +448,16 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
   <div id="book"></div>
 </section>
 
+<!-- PLAY: a meadow where caught critters wander and react to taps -->
+<section id="scr-play" class="screen" hidden>
+  <div class="bookhead">
+    <button class="iconbtn" id="play-home" aria-label="Back to the map"><svg class="ico" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></button>
+    <h2>Critter Meadow</h2>
+  </div>
+  <p class="playhint" id="play-hint">Tap a critter to say hi. Tap the grass to give a snack!</p>
+  <div class="meadow" id="meadow" aria-label="Meadow"></div>
+</section>
+
 <!-- PRACTICE -->
 <section id="scr-practice" class="screen" hidden>
   <div class="bookhead">
@@ -441,6 +489,9 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
       </div>
       <label class="row"><input type="checkbox" id="g-parade" style="width:22px;height:22px;accent-color:var(--mint)"> Start each trip with the listening parade</label>
       <label class="row"><input type="checkbox" id="g-fauto" style="width:22px;height:22px;accent-color:var(--mint)"> In Practice, play each word first so he can copy it (turn off when he’s ready to name the pictures himself)</label>
+      <label class="row"><input type="checkbox" id="g-tcards" style="width:22px;height:22px;accent-color:var(--mint)"> Add Practice words to island trips (they join the parade, plus 4 picture cards before the catch)</label>
+      <label class="row"><input type="checkbox" id="g-focus" style="width:22px;height:22px;accent-color:var(--mint)"> Focus on missed words: words he’s missed in the last two weeks come up more often, in every game</label>
+      <div class="note" id="g-focusnote"></div>
     </div>
 
     <div class="gpanel">
@@ -454,6 +505,7 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
       <p>Tap the red button and say the word once, clearly. It stops by itself and plays back. Until a word has your recording, the iPad voice reads it.</p>
       <div class="btnrow"><div class="tabs" id="g-rectabs"></div><div class="seg" id="g-recset"><button data-v="game">Game words</button><button data-v="flash">Practice words</button></div></div>
       <div class="note" id="g-reccount"></div>
+      <div class="reclegend"><span><span class="st mine">Your voice</span> saved in the game</span><span><span class="st new">Not exported</span> on this iPad only, export to keep</span><span><span class="st">iPad voice</span> not recorded yet</span></div>
       <div class="reclist" id="g-reclist"></div>
     </div>
 
@@ -486,6 +538,7 @@ textarea.copybox{width:100%;min-height:200px;font:14px/1.5 ui-monospace,Menlo,mo
         <li>In the Café, he names the order card. Tap the word you actually <em>heard</em>, even if it’s the wrong one. When he says “tea” for “cookie,” the critter brings tea, and that mix-up teaches him that sounds change meaning.</li>
         <li>After a mix-up, your model plays and he gets one more try. If it’s still hard, the game moves on, as the therapist asked.</li>
         <li>Use <b>Skip</b> if he didn’t really try (distracted, silly voice). Skipped words aren’t counted.</li>
+        <li>Island trips also mix in Practice words: some join the parade, and 4 picture cards come before the catch. You can turn this off above.</li>
         <li><b>Practice</b> (on the map) is flashcards for one island’s sound at the start, middle or end of words. Tap <b>Said it right</b> or <b>Not yet</b>. After “Not yet” your model plays and he gets one more try. Ten cards help one of that island’s critters grow.</li>
         <li>Short and often beats long: one or two trips a day. Stop while he still wants more.</li>
         <li>If he’s stuck on K, ask the therapist which cue she uses. Common ones are a little “cough” sound in the back of the throat or keeping the tongue tip down. Use her words so the cues match.</li>
@@ -554,7 +607,7 @@ const POS=[{id:'ini',kid:'Beginning',gr:'initial'},{id:'med',kid:'Middle',gr:'me
 const POSMAP=Object.fromEntries(POS.map(p=>[p.id,p]));
 /* Parsed cards per island: {w: word, d: word with [target] marks, e: emoji, pos} */
 const CARDS=Object.fromEntries(Object.entries(PRACTICE).map(([wid,o])=>[wid,POS.flatMap(p=>o[p.id].trim().split(/\s+/).map(x=>{const [d,e]=x.split('|');return {w:d.replace(/[\[\]]/g,''),d,e,pos:p.id}}))]));
-const FLASH_N=10;
+const FLASH_N=10,TRIP_CARDS=4;
 
 function C(id,name,col,bel,acc,shape,ears,tail,pat,eyes,extra){return {id,name,col,bel,acc,shape,ears,tail,pat,eyes,extra}}
 const CRIT = {
@@ -585,7 +638,7 @@ const PRAISE_FIND=['Peekaboo!','You found it!','There it is!','Great listening!'
 const PRAISE_CAFE=['Yum!','Perfect!','Coming right up!','Just right!','Thank you!'];
 
 /* ================= STATE ================= */
-const DEF={name:'',worlds:{kt:true,gd:false,ss:false,lw:false},caught:{},log:[],trips:[],len:3,parade:true,setup:false,lastPairs:{},pWorld:'kt',pPos:'ini',fAuto:true};
+const DEF={name:'',worlds:{kt:true,gd:false,ss:false,lw:false},caught:{},log:[],trips:[],len:3,parade:true,setup:false,lastPairs:{},pWorld:'kt',pPos:'ini',fAuto:true,tCards:true,focus:false};
 let S=(()=>{try{const s=JSON.parse(localStorage.getItem('critter-catch'));return s?Object.assign({},DEF,s,{worlds:Object.assign({},DEF.worlds,s.worlds||{})}):{...DEF}}catch(e){return {...DEF}}})();
 function save(){try{if(S.log.length>8000)S.log=S.log.slice(-8000);localStorage.setItem('critter-catch',JSON.stringify(S))}catch(e){}}
 
@@ -610,12 +663,16 @@ let UID=0;
 function shade(hex,amt){let n=parseInt(hex.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;const f=amt<0?0:255,p=Math.abs(amt);
   r=Math.round((f-r)*p+r);g=Math.round((f-g)*p+g);b=Math.round((f-b)*p+b);return '#'+((1<<24)|(r<<16)|(g<<8)|b).toString(16).slice(1)}
 function starPath(cx,cy,R,r){let d='';for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r:R;d+=(i?'L':'M')+(cx+rr*Math.cos(a)).toFixed(1)+','+(cy+rr*Math.sin(a)).toFixed(1)}return d+'Z'}
+/* Growth stages. 1 Baby: small, hair tuft, no pattern. 2 Little: pattern appears. 3 Grown: crown, wings, leaf or star.
+   4 Big: adds a cape. 5 Super: golden glow and orbiting stars. */
+const STAGES=['','Baby','Little','Grown','Big','Super'];
 function critterSVG(c,o={}){
-  const lv=o.lv||1,big=lv>=3,shiny=!!o.shiny,u='cg'+(++UID),dk=shade(c.col,-.55);
+  const lv=Math.max(1,Math.min(5,o.lv||1)),big=lv>=3,shiny=!!o.shiny,u='cg'+(++UID),dk=shade(c.col,-.55);
   const F=shiny?`url(#${u})`:c.col, S=`stroke="${dk}" stroke-width="4" stroke-linejoin="round"`;
   const top={round:70,pear:64,bean:62}[c.shape]; let p='';
   const defs=shiny?`<defs><linearGradient id="${u}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c.col}"/><stop offset=".42" stop-color="#fff7b8"/><stop offset=".62" stop-color="${shade(c.col,.3)}"/><stop offset="1" stop-color="${c.col}"/></linearGradient></defs>`:'';
-  if(big&&c.extra==='wings') p+=`<path d="M52,112 C8,74 2,148 46,146Z" fill="${c.bel}" ${S}/><path d="M148,112 C192,74 198,148 154,146Z" fill="${c.bel}" ${S}/>`;
+  if(lv>=4) p+=`<path d="M58,100 Q100,86 142,100 L170,178 Q100,194 30,178Z" fill="${c.acc}" ${S}/><path d="M58,100 Q100,86 142,100" fill="none" stroke="#ffd23f" stroke-width="5" stroke-linecap="round"/>`;
+  if(big&&c.extra==='wings') p+=lv>=5?`<path d="M50,112 C-4,58 -6,160 44,150Z" fill="${c.bel}" ${S}/><path d="M150,112 C204,58 206,160 156,150Z" fill="${c.bel}" ${S}/>`:`<path d="M52,112 C8,74 2,148 46,146Z" fill="${c.bel}" ${S}/><path d="M148,112 C192,74 198,148 154,146Z" fill="${c.bel}" ${S}/>`;
   const curl='M150,150 C188,150 186,106 164,110 C150,113 156,130 168,126', zig='M148,152 L176,142 L162,128 L188,112';
   if(c.tail==='curl') p+=`<path d="${curl}" fill="none" stroke="${dk}" stroke-width="17" stroke-linecap="round"/><path d="${curl}" fill="none" stroke="${c.col}" stroke-width="9" stroke-linecap="round"/>`;
   if(c.tail==='fluffy') p+=`<circle cx="160" cy="158" r="17" fill="${c.bel}" ${S}/>`;
@@ -635,9 +692,10 @@ function critterSVG(c,o={}){
   else if(c.shape==='bean') p+=`<ellipse cx="100" cy="122" rx="52" ry="60" fill="${F}" ${S}/>`;
   else p+=`<path d="M100,64 C138,64 160,112 160,142 C160,172 134,180 100,180 C66,180 40,172 40,142 C40,112 62,64 100,64Z" fill="${F}" ${S}/>`;
   p+=`<ellipse cx="100" cy="148" rx="34" ry="27" fill="${c.bel}"/>`;
-  if(c.pat==='spots') p+=`<g fill="${c.acc}" opacity=".5"><circle cx="60" cy="118" r="7"/><circle cx="142" cy="106" r="9"/><circle cx="138" cy="132" r="5"/><circle cx="68" cy="96" r="5"/></g>`;
-  if(c.pat==='stripes') p+=`<path d="M86,${top+4} Q90,${top+14} 86,${top+24}M100,${top+2} L100,${top+20}M114,${top+4} Q110,${top+14} 114,${top+24}" stroke="${c.acc}" stroke-width="6" stroke-linecap="round" fill="none" opacity=".75"/>`;
-  const ey=112, er=big?13:15, ink='#1f2a44';
+  if(lv===1) p+=`<path d="M100,${top+2} C96,${top-14} 112,${top-18} 110,${top-6}" fill="none" stroke="${dk}" stroke-width="4" stroke-linecap="round"/>`;
+  if(lv>=2&&c.pat==='spots') p+=`<g fill="${c.acc}" opacity=".5"><circle cx="60" cy="118" r="7"/><circle cx="142" cy="106" r="9"/><circle cx="138" cy="132" r="5"/><circle cx="68" cy="96" r="5"/></g>`;
+  if(lv>=2&&c.pat==='stripes') p+=`<path d="M86,${top+4} Q90,${top+14} 86,${top+24}M100,${top+2} L100,${top+20}M114,${top+4} Q110,${top+14} 114,${top+24}" stroke="${c.acc}" stroke-width="6" stroke-linecap="round" fill="none" opacity=".75"/>`;
+  const ey=112, er=lv===1?17:big?13:15, ink='#1f2a44';
   for(const x of [80,120]){
     if(c.eyes==='happy') p+=`<path d="M${x-12},${ey+3} Q${x},${ey-10} ${x+12},${ey+3}" stroke="${ink}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
     else if(c.eyes==='sleepy') p+=`<path d="M${x-12},${ey} Q${x},${ey+10} ${x+12},${ey}" stroke="${ink}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
@@ -653,8 +711,10 @@ function critterSVG(c,o={}){
   }
   let spark='';
   if(shiny) spark=[[26,46,10],[176,58,8],[170,168,9],[30,164,7],[100,14,8]].map(([x,y,r])=>`<path class="tw" d="M${x},${y-r} Q${x},${y} ${x+r},${y} Q${x},${y} ${x},${y+r} Q${x},${y} ${x-r},${y} Q${x},${y} ${x},${y-r}Z" fill="#ffd23f" stroke="#e6a800" stroke-width="1.5"/>`).join('');
-  const sc=big?1:.84;
-  return `<svg class="critter${o.sil?' sil':''}" viewBox="0 0 200 200" role="img" aria-label="${o.sil?'Mystery critter':esc(c.name)}">${defs}<g transform="translate(100 190) scale(${sc}) translate(-100 -190)">${p}</g>${spark}</svg>`;
+  if(lv>=5) spark+=[[18,96,7],[184,92,7],[100,8,6]].map(([x,y,r])=>`<path class="tw" d="${starPath(x,y,r,r*.45)}" fill="#ffd23f" stroke="#e6a800" stroke-width="1.5"/>`).join('');
+  const sc=[0,.74,.84,.93,1,1][lv];
+  const aura=lv>=5&&!o.sil?`<defs><radialGradient id="${u}a"><stop offset=".45" stop-color="#fff3a6" stop-opacity=".95"/><stop offset="1" stop-color="#ffd23f" stop-opacity="0"/></radialGradient></defs><circle cx="100" cy="122" r="98" fill="url(#${u}a)"/>`:'';
+  return `<svg class="critter${o.sil?' sil':''}" viewBox="0 0 200 200" role="img" aria-label="${o.sil?'Mystery critter':esc(c.name)}">${defs}${aura}<g transform="translate(100 190) scale(${sc}) translate(-100 -190)">${p}</g>${spark}</svg>`;
 }
 function cstate(c){return S.caught[c.id]||null}
 function cSVG(c,extra={}){const s=cstate(c);return critterSVG(c,{lv:s?s.lv:1,shiny:s&&s.sh,...extra})}
@@ -672,6 +732,9 @@ const sfx={
   whoosh(){tone(300,0,.45,'sawtooth',.06,1400)},
   fanfare(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.12,.28,'triangle',.16));tone(1047,.5,.7,'sine',.14);tone(1319,.5,.7,'sine',.1)},
   step(){tone(180,0,.08,'triangle',.12)},
+  evolve(){[392,494,587,784,988,1175].forEach((f,i)=>tone(f,i*.07,.22,'triangle',.13));tone(1568,.45,.8,'sine',.12)},
+  munch(){[0,.16,.32].forEach(t=>tone(160,t,.09,'square',.07,120))},
+  giggle(){[880,1046,880,1175].forEach((f,i)=>tone(f,i*.09,.1,'sine',.13,f*1.1))},
 };
 let voice=null;
 function pickVoice(){try{const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]US/i.test(v.lang));voice=vs.find(v=>/Samantha|Ava|Allison|Susan|Nicky|Zoe/i.test(v.name))||vs.find(v=>v.localService)||vs[0]||null}catch(e){}}
@@ -784,6 +847,7 @@ async function recordClip(ctl){await mic.get();const mime=pickMime();if(mime===n
 
 /* ================= SCREENS ================= */
 function show(id){for(const s of document.querySelectorAll('.screen'))s.hidden=s.id!=='scr-'+id;
+  if(id==='play')startPlay();else stopPlay();
   if(id==='map')renderMap();if(id==='book')renderBook();if(id==='grown')renderGrown();if(id==='practice')renderPractice()}
 function hi(){$('#hi').textContent=nm()?`Hi, ${nm()}! Pick an island.`:'Hi, explorer! Pick an island.'}
 function caughtCount(wid){return CRIT[wid].filter(c=>S.caught[c.id]).length}
@@ -805,6 +869,7 @@ $('#islands').addEventListener('click',e=>{const b=e.target.closest('.island');i
   startTrip(w)});
 $('#btn-book').onclick=()=>{ac();sfx.pop();show('book')};
 $('#btn-practice').onclick=()=>{ac();sfx.pop();show('practice')};
+$('#btn-play').onclick=()=>{ac();sfx.pop();show('play')};
 $('#book-home').onclick=()=>{hush();show('map')};
 
 /* hold-to-open grown-ups */
@@ -826,13 +891,23 @@ function logIt(e){S.log.push(Object.assign({d:Date.now()},e));save()}
 let wake=null;async function wakeOn(){try{wake=await navigator.wakeLock.request('screen')}catch(e){}}
 function wakeOff(){try{wake&&wake.release()}catch(e){}wake=null}
 
+/* Recent tries and misses per word (last 14 days). kind 'f' = picture cards, otherwise Hide & Seek and Café */
+function missMap(wid,kind){const since=Date.now()-14*864e5,m={};
+  for(const e of S.log){if(e.d<since||e.wid!==wid||(kind==='f')!==(e.k==='f'))continue;const r=m[e.w]||(m[e.w]={n:0,miss:0});r.n++;if(!e.ok)r.miss++}return m}
+/* With "Focus on missed words" on, up to 70% of the picks are recently missed words, most-missed first.
+   base is the normal order; the rest of the picks come from it. */
+function focusPick(items,n,missOf,base){if(!S.focus)return base.slice(0,n);
+  const tricky=items.filter(x=>missOf(x).miss>0).map(x=>{const r=missOf(x);return{x,v:r.miss/r.n+Math.random()*.15}})
+    .sort((a,b)=>b.v-a.v).slice(0,Math.ceil(n*.7)).map(o=>o.x);
+  return [...tricky,...base.filter(x=>!tricky.includes(x))].slice(0,n)}
 function pickPairs(w,n){
   const since=Date.now()-14*864e5, score={};
   for(const p of w.pairs){score[p[0]]=0}
   for(const e of S.log){if(e.d<since||e.wid!==w.id||e.k==='f')continue;const p=w.pairs.find(p=>p.includes(e.w));if(!p)continue;score[p[0]]+=1;if(!e.ok)score[p[0]]-=2}
   const last=S.lastPairs[w.id]||[];
   const ranked=w.pairs.map(p=>({p,v:score[p[0]]+Math.random()*4+(last.includes(p[0])?3:0)})).sort((a,b)=>a.v-b.v);
-  const out=ranked.slice(0,Math.min(n,w.pairs.length)).map(x=>x.p);S.lastPairs[w.id]=out.map(p=>p[0]);return out}
+  const m=missMap(w.id,'pair'),z={n:0,miss:0},mo=p=>{const a=m[p[0]]||z,b=m[p[1]]||z;return{n:a.n+b.n,miss:a.miss+b.miss}};
+  const out=focusPick(w.pairs,Math.min(n,w.pairs.length),mo,ranked.map(x=>x.p));S.lastPairs[w.id]=out.map(p=>p[0]);return out}
 function tripCritter(w){const list=CRIT[w.id],un=list.filter(c=>!S.caught[c.id]);
   if(un.length)return{c:un[0],mode:'new'};
   const lo=Math.min(...list.map(c=>S.caught[c.id].lv));return{c:pick(list.filter(c=>S.caught[c.id].lv===lo)),mode:'grow'}}
@@ -841,12 +916,13 @@ async function startTrip(w){
   ac();hush();
   const pairs=pickPairs(w,S.len||3);const {c,mode}=tripCritter(w);
   const hideT=shuffle(pairs.flatMap(p=>[{p,t:p[0]},{p,t:p[1]}]));
-  const cafeT=shuffle(pairs.flat());
-  T={w,pairs,cr:c,mode,hideT,cafeT,stars:Array(hideT.length+cafeT.length).fill(''),said:0};
+  const cafeT=shuffle(pairs.flat()),cards=S.tCards?pickCards(w,'mix',TRIP_CARDS):[];
+  T={w,pairs,cr:c,mode,hideT,cafeT,cards,stars:Array(hideT.length+cafeT.length+cards.length).fill(''),said:0};
   const t=T;show('trip');renderStars();wakeOn();
   if(S.parade){await parade(t);if(!alive(t))return}
   await hideSeek(t);if(!alive(t))return;
   await cafe(t);if(!alive(t))return;
+  if(t.cards.length){await cardRound(t);if(!alive(t))return}
   await catchIt(t);
 }
 function endTrip(){T=null;hush();mic.release();wakeOff();$('#result').hidden=true;$('#trip-skip').hidden=true;$('#scr-trip').classList.remove('cafe-bg');document.querySelectorAll('.bubble,.confetti').forEach(e=>e.remove())}
@@ -855,14 +931,15 @@ $('#trip-home').onclick=()=>{endTrip();show('map')};
 /* ---- 1. Parade: listening bombardment (no response needed) ---- */
 async function parade(t){
   stage('parade');const skip=$('#trip-skip');skip.hidden=false;let skipped=false;skip.onclick=()=>{skipped=true;hush()};
-  const words=shuffle(t.w.pairs.map(p=>p[0])).slice(0,8);
+  const pw=shuffle(t.w.pairs.map(p=>p[0])).slice(0,S.tCards?4:8).map(w=>({w,h:pic(t.w,w)}));
+  const words=shuffle([...pw,...(S.tCards?pickCards(t.w,'mix',4).map(c=>({w:c.w,h:cardPic(t.w,c)})):[])]);
   const lane=$('#parade');lane.innerHTML=`<div class="marcher">${cSVG(t.cr)}</div>`;
   $('#parade-say').textContent=`${t.cr.name}’s snack parade!`;
   await speakLine([CK(t.cr),L('parade')],`Here comes ${t.cr.name}’s snack parade!`);
   for(const w of words){if(!alive(t)||skipped)break;
-    const f=document.createElement('div');f.className='float';f.innerHTML=pic(t.w,w);lane.appendChild(f);
+    const f=document.createElement('div');f.className='float';f.innerHTML=w.h;lane.appendChild(f);
     await sleep(30);f.classList.add('in');sfx.step();await sleep(500);if(!alive(t)||skipped)break;
-    await playWord(w);await sleep(450);f.classList.add('out');setTimeout(()=>f.remove(),600)}
+    await playWord(w.w);await sleep(450);f.classList.add('out');setTimeout(()=>f.remove(),600)}
   skip.hidden=true;await sleep(300)}
 
 /* ---- 2. Hide & Seek: hear the word, find the critter (discrimination) ---- */
@@ -952,14 +1029,16 @@ async function catchIt(t){
   await sleep(450);wrap.classList.add('inbubble');await sleep(350);b.classList.add('wobble');sfx.step();await sleep(500);sfx.step();await sleep(500);sfx.step();await sleep(500);
   if(!alive(t))return;b.remove();
   // update collection
-  const prev=S.caught[c.id];let title,sub,tk,newSh=false,grewUp=false;
+  const prev=S.caught[c.id],oldLv=prev?prev.lv:0,oldSh=!!(prev&&prev.sh);let title,sub,tk,newSh=false,grewUp=false;
   if(!prev){const sh=Math.random()<1/12;S.caught[c.id]={lv:1,sh,d:Date.now()};newSh=sh;title=`You caught ${c.name}!`;tk=[L('caught'),CK(c)];sub=sh?'A sparkly one! Super rare!':'New critter for your book!'}
   else{prev.lv=Math.min(prev.lv+1,5);if(!prev.sh&&Math.random()<.2){prev.sh=true;newSh=true}grewUp=prev.lv===3;
-    title=grewUp?`${c.name} grew up!`:`${c.name} got bigger!`;tk=[CK(c),L(grewUp?'grewup':'bigger')];sub=newSh?`And now ${c.name} sparkles!`:`Level ${prev.lv} of 5`}
+    title=grewUp?`${c.name} grew up!`:`${c.name} got bigger!`;tk=[CK(c),L(grewUp?'grewup':'bigger')];sub=newSh?`And now ${c.name} sparkles!`:`${STAGES[prev.lv]} ${c.name} · level ${prev.lv} of 5`}
   S.trips.push(t.kind==='p'?{d:Date.now(),wid:t.w.id,said:t.said,k:'p'}:{d:Date.now(),wid:t.w.id,said:t.said});save();
   sfx.fanfare();confetti();
   const r=$('#result');
-  r.innerHTML=`<div class="rcard">${cSVG(c)}<h2 class="rtitle">${esc(title)}</h2><p class="rsub">${esc(sub)}</p>
+  const evo=oldLv&&S.caught[c.id].lv>oldLv;
+  if(evo)setTimeout(()=>{if(alive(t))sfx.evolve()},900);
+  r.innerHTML=`<div class="rcard">${evo?`<div class="evo"><div class="from">${critterSVG(c,{lv:oldLv,shiny:oldSh})}</div><div class="to">${cSVG(c)}</div></div>`:cSVG(c)}<h2 class="rtitle">${esc(title)}</h2><p class="rsub">${esc(sub)}</p>
     <div class="rbtns"><button class="btn2 go" id="r-again">Play again</button><button class="btn2" id="r-book">Critter Book</button><button class="btn2" id="r-map">Map</button></div></div>`;
   r.hidden=false;
   speakLine(nm()?[...tk,L('greatjob'),NK()]:tk,title+(nm()?` Great job, ${nm()}!`:''));
@@ -1005,7 +1084,8 @@ function pickCards(w,pos,n){
   const pool=CARDS[w.id].filter(c=>pos==='mix'||c.pos===pos),since=Date.now()-14*864e5,score={};
   for(const c of pool)score[c.w]=0;
   for(const e of S.log){if(e.d<since||e.wid!==w.id||e.k!=='f'||!(e.w in score))continue;score[e.w]+=1;if(!e.ok)score[e.w]-=2}
-  return shuffle(pool.map(c=>({c,v:score[c.w]+Math.random()*3})).sort((a,b)=>a.v-b.v).slice(0,Math.min(n,pool.length)).map(x=>x.c))}
+  const base=pool.map(c=>({c,v:score[c.w]+Math.random()*3})).sort((a,b)=>a.v-b.v).map(x=>x.c),m=missMap(w.id,'f');
+  return shuffle(focusPick(pool,Math.min(n,pool.length),c=>m[c.w]||{n:0,miss:0},base))}
 
 async function startPractice(w,pos){
   ac();hush();
@@ -1015,15 +1095,10 @@ async function startPractice(w,pos){
   await flashcards(t);if(!alive(t))return;
   await catchIt(t);
 }
-async function flashcards(t){
-  stage('flash');const bub=$('#flash-say'),card=$('#fcard'),helper=$('#flash-helper');
-  helper.innerHTML=t.mode==='new'?critterSVG(t.cr,{sil:true}):cSVG(t.cr);
-  const who=t.mode==='new'?'A new critter':t.cr.name;
-  bub.textContent=`${who} wants to practice ${t.w.a}!`;
-  if(t.mode==='new')await say(`A new critter wants to practice with you! Say each picture.`);
-  else await speakLine([CK(t.cr),L('practice')],`${t.cr.name} wants to practice with you! Say each picture.`);
+/* One round of picture cards. Used by Practice and by the picture round in island trips. */
+async function cardLoop(t,cards){const bub=$('#flash-say'),card=$('#fcard'),helper=$('#flash-helper');
   let n=0;
-  for(const c of t.cards){if(!alive(t))return;
+  for(const c of cards){if(!alive(t))return;
     card.className='fcard';void card.offsetWidth;
     card.innerHTML=`<span class="ftag">${POSMAP[c.pos].kid}</span><span class="fear"><svg class="ico" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg></span><div class="fpic">${cardPic(t.w,c)}</div><div class="fword">${hiCard(c.d)}</div>`;
     card.setAttribute('aria-label',`${c.w}. Tap to hear it.`);helper.className='helper';
@@ -1045,11 +1120,69 @@ async function flashcards(t){
     if(!alive(t))return;
     if(result!=='skip'){logIt({wid:t.w.id,w:c.w,k:'f',pos:c.pos,ok:result===1?1:0,r:result});addStar(result?'got':'tried')}
   }
-  card.onclick=null;
+  card.onclick=null}
+/* Picture round inside an island trip: a few Practice words with the island's sound */
+async function cardRound(t){
+  stage('flash');$('#flash-helper').innerHTML=t.mode==='new'?critterSVG(t.cr,{sil:true}):cSVG(t.cr);
+  await banner('Picture time!');if(!alive(t))return;
+  $('#flash-say').textContent='Say each picture!';await speakLine([L('sayit')],'Say it!');if(!alive(t))return;
+  await cardLoop(t,t.cards)}
+async function flashcards(t){
+  stage('flash');const bub=$('#flash-say'),card=$('#fcard'),helper=$('#flash-helper');
+  helper.innerHTML=t.mode==='new'?critterSVG(t.cr,{sil:true}):cSVG(t.cr);
+  const who=t.mode==='new'?'A new critter':t.cr.name;
+  bub.textContent=`${who} wants to practice ${t.w.a}!`;
+  if(t.mode==='new')await say(`A new critter wants to practice with you! Say each picture.`);
+  else await speakLine([CK(t.cr),L('practice')],`${t.cr.name} wants to practice with you! Say each picture.`);
+  await cardLoop(t,t.cards);if(!alive(t))return;
   // the critter only grows if at least one card was tried
   if(!t.said){endTrip();show('practice');return}
   await banner(t.mode==='new'?'Here comes a critter!':`${t.cr.name} is ready to grow!`);
 }
+
+/* ================= PLAY (Critter Meadow) ================= */
+/* Every caught critter wanders the meadow. Tapping one makes it react and say its name;
+   tapping the grass drops a snack and the nearest critter runs over to eat it. */
+const SNACKS=['🍪','🍓','🍎','🧁','🍌','🥕'];
+let play=null;
+function startPlay(){stopPlay();
+  const m=$('#meadow'),got=Object.values(CRIT).flat().filter(c=>S.caught[c.id]);
+  if(!got.length){m.innerHTML=`<div class="pempty">${[CRIT.kt[0],CRIT.kt[1],CRIT.kt[2]].map(c=>critterSVG(c,{sil:true})).join('')}<p>Catch critters on the islands, and they’ll come here to play!</p></div>`;
+    $('#play-hint').hidden=true;return}
+  $('#play-hint').hidden=false;
+  const base=got.length<=4?32:got.length<=10?24:got.length<=18?18:15;
+  const flowers=Array.from({length:14},()=>`<span class="flower" style="left:${(Math.random()*96).toFixed(1)}%;top:${(8+Math.random()*88).toFixed(1)}%">${pick(['🌼','🌸','🌷','🍀','🌱'])}</span>`).join('');
+  m.innerHTML=flowers+got.map(c=>`<div class="pc" data-c="${c.id}" role="button" aria-label="${esc(c.name)}"><div class="pin"><div class="pflip">${cSVG(c)}</div></div></div>`).join('');
+  play={m,pcs:[...m.querySelectorAll('.pc')].map(el=>({el,c:ALLC[el.dataset.c],x:5+Math.random()*90,y:22+Math.random()*76,busy:0})),base,timer:0};
+  for(const p of play.pcs)placePc(p,true);
+  play.timer=setInterval(wander,1400)}
+function stopPlay(){if(play){clearInterval(play.timer);play=null}}
+function placePc(p,instant){const el=p.el,sz=play.base*(.72+.28*(p.y/100));
+  if(instant)el.style.transition='none';
+  el.style.left=p.x+'%';el.style.top=p.y+'%';el.style.width=`min(${sz}vmin,${(sz*2.2).toFixed(1)}vw)`;el.style.zIndex=Math.round(p.y);
+  if(instant){void el.offsetWidth;el.style.transition=''}}
+function walkTo(p,x,y,ms=2400){const el=p.el;el.style.transitionDuration=ms+'ms';
+  el.querySelector('.pflip').classList.toggle('flip',x<p.x);p.x=Math.max(4,Math.min(96,x));p.y=Math.max(20,Math.min(99,y));
+  el.classList.add('walk');placePc(p);clearTimeout(p.wt);p.wt=setTimeout(()=>el.classList.remove('walk'),ms)}
+function wander(){if(!play)return;const now=Date.now();
+  for(const p of play.pcs)if(p.busy<now&&Math.random()<.35)walkTo(p,p.x+(Math.random()-.5)*40,p.y+(Math.random()-.5)*30)}
+function react(p){const now=Date.now();if(p.busy>now)return;p.busy=now+1600;
+  const kind=pick(['hop','spin','wobble','tilt']),pin=p.el.querySelector('.pin');
+  pin.className='pin';void pin.offsetWidth;pin.classList.add(kind);
+  pick([sfx.giggle,sfx.pop,sfx.boing])();hearts(p,3);hush();speakLine([CK(p.c)],p.c.name+'!')}
+function hearts(p,n){for(let i=0;i<n;i++){const h=document.createElement('span');h.className='heart';h.textContent=pick(['💛','💖','✨','💗']);
+  h.style.left=`calc(${p.x}% + ${((Math.random()-.5)*60).toFixed(0)}px)`;h.style.top=`calc(${p.y}% - ${(play.base*.9).toFixed(1)}vmin)`;h.style.animationDelay=i*.15+'s';
+  play.m.appendChild(h);setTimeout(()=>h.remove(),1900)}}
+$('#meadow').addEventListener('click',e=>{if(!play)return;ac();
+  const pc=e.target.closest('.pc');if(pc){react(play.pcs.find(p=>p.el===pc));return}
+  if(play.m.querySelectorAll('.snack').length>=3)return;
+  const r=play.m.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*100,y=(e.clientY-r.top)/r.height*100;if(y<12)return;
+  const s=document.createElement('span');s.className='snack';s.textContent=pick(SNACKS);s.style.left=x+'%';s.style.top=y+'%';play.m.appendChild(s);sfx.step();
+  const now=Date.now(),free=play.pcs.filter(p=>p.busy<now);if(!free.length){setTimeout(()=>s.remove(),1500);return}
+  const p=free.sort((a,b)=>Math.hypot(a.x-x,a.y-y)-Math.hypot(b.x-x,b.y-y))[0];p.busy=now+3200;
+  walkTo(p,x+(x<p.x?3:-3),y+2,1300);
+  setTimeout(()=>{if(!play)return;s.classList.add('eaten');sfx.munch();const pin=p.el.querySelector('.pin');pin.className='pin';void pin.offsetWidth;pin.classList.add('hop');hearts(p,2);setTimeout(()=>s.remove(),500)},1400)});
+$('#play-home').onclick=()=>{hush();show('map')};
 
 /* ================= BOOK ================= */
 function renderBook(){
@@ -1072,7 +1205,7 @@ let gRecWorld='kt',gProgWorld='kt',gRange=7;
 function renderGrown(){
   $('#g-name').value=S.name;
   document.querySelectorAll('#g-len button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===S.len)));
-  $('#g-parade').checked=!!S.parade;$('#g-fauto').checked=!!S.fAuto;
+  $('#g-parade').checked=!!S.parade;$('#g-fauto').checked=!!S.fAuto;$('#g-tcards').checked=!!S.tCards;$('#g-focus').checked=!!S.focus;renderFocusNote();
   $('#g-worlds').innerHTML=WORLDS.map(w=>`<label class="wtoggle"><input type="checkbox" id="gw-${w.id}" data-w="${w.id}" ${S.worlds[w.id]?'checked':''}><div><b>${w.name} · ${w.a} vs ${w.b}</b><span>${esc(w.note)} Words: ${w.pairs.map(p=>p.join('/')).join(', ')}. Practice cards: ${CARDS[w.id].length} ${w.a} words (${POS.map(p=>CARDS[w.id].filter(c=>c.pos===p.id).length+' '+p.gr).join(', ')}).</span></div></label>`).join('');
   renderRec();renderProg();
 }
@@ -1080,6 +1213,15 @@ $('#g-name').addEventListener('input',e=>{S.name=e.target.value.slice(0,20);save
 $('#g-len').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.len=+b.dataset.v;save();renderGrown()});
 $('#g-parade').addEventListener('change',e=>{S.parade=e.target.checked;save()});
 $('#g-fauto').addEventListener('change',e=>{S.fAuto=e.target.checked;save()});
+$('#g-tcards').addEventListener('change',e=>{S.tCards=e.target.checked;save()});
+$('#g-focus').addEventListener('change',e=>{S.focus=e.target.checked;save();renderFocusNote()});
+/* Lists the words that "Focus on missed words" will bring back, across the islands that are on */
+function renderFocusNote(){const out=[];
+  for(const w of WORLDS){if(!S.worlds[w.id])continue;
+    for(const kind of ['pair','f']){const m=missMap(w.id,kind);for(const [x,r] of Object.entries(m))if(r.miss)out.push({x,r})}}
+  out.sort((a,b)=>b.r.miss/b.r.n-a.r.miss/a.r.n||b.r.miss-a.r.miss);
+  $('#g-focusnote').textContent=!out.length?'No missed words in the last two weeks.':
+    `${S.focus?'Coming up more often':'Missed most lately'}: `+out.slice(0,10).map(o=>`${o.x} (missed ${o.r.miss} of ${o.r.n})`).join(', ')+(out.length>10?`, and ${out.length-10} more`:'')}
 $('#g-worlds').addEventListener('change',e=>{const w=e.target.dataset.w;if(!w)return;S.worlds[w]=e.target.checked;if(!Object.values(S.worlds).some(Boolean)){S.worlds.kt=true;e.target.checked=w==='kt'}save()});
 $('#g-close').onclick=()=>{hush();show('map')};
 
@@ -1089,20 +1231,24 @@ let recBusy=null,gLineTab='lines',gRecSet='game';
 const ICO_REC='<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="currentColor" stroke="none"/></svg>',
   ICO_PLAY='<svg class="ico" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>',
   ICO_DEL='<svg class="ico" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-function clipStatus(k){return clipSrc[k]==='local'?(repoClip[k]?'Your voice · new take, this iPad only':'Your voice · this iPad only'):clipSrc[k]==='repo'?'Your voice · saved in game':'iPad voice'}
+/* Short status tag: saved in the game, recorded here but not exported yet, or not recorded */
+function clipStatus(k){return clipSrc[k]==='local'?`<span class="st new" title="Recorded on this iPad only. Export to keep it.">${repoClip[k]?'New take':'Not exported'}</span>`
+  :clipSrc[k]==='repo'?'<span class="st mine" title="Your voice, saved in the game">Your voice</span>':'<span class="st" title="Not recorded yet">iPad voice</span>'}
 /* One row: k = recording key, label = what to say, speak = what the iPad voice reads, note = extra hint */
 function recRow(k,label,thumb,speak,note){return `<div class="recrow" data-k="${esc(k)}" data-t="${esc(speak)}"><div class="thumb">${thumb}</div>
-    <div class="w"><b>${esc(label)}</b><small class="${clipURL[k]?'mine':''}">${note?esc(note)+' · ':''}${clipStatus(k)}</small></div>
-    <button class="rb rec" data-a="rec" aria-label="Record ${esc(label)}">${ICO_REC}</button>
+    <div class="w"><b title="${esc(label)}">${esc(label)}</b>${note?`<small>${esc(note)}</small>`:''}${clipStatus(k)}</div>
+    <div class="rbs"><button class="rb rec" data-a="rec" aria-label="Record ${esc(label)}">${ICO_REC}</button>
     <button class="rb" data-a="play" aria-label="Play ${esc(label)}">${ICO_PLAY}</button>
-    <button class="rb" data-a="del" aria-label="Delete recording for ${esc(label)}" ${clipSrc[k]==='local'?'':'disabled'}>${ICO_DEL}</button></div>`}
+    <button class="rb" data-a="del" aria-label="Delete recording for ${esc(label)}" ${clipSrc[k]==='local'?'':'disabled'}>${ICO_DEL}</button></div></div>`}
 function renderRec(){
   tabs($('#g-rectabs'),gRecWorld,w=>{gRecWorld=w;renderRec()});
   document.querySelectorAll('#g-recset button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===gRecSet)));
   const w=WMAP[gRecWorld];
-  const items=gRecSet==='game'?w.pairs.flat().map(x=>({k:x,th:pic(w,x),note:''})):CARDS[w.id].map(c=>({k:c.w,th:cardPic(w,c),note:POSMAP[c.pos].gr}));
+  const items=gRecSet==='game'?w.pairs.flat().map(x=>({k:x,th:pic(w,x)})):CARDS[w.id].map(c=>({k:c.w,th:cardPic(w,c),pos:c.pos}));
+  const row=x=>recRow(x.k,x.k,x.th.replace('class="picbox"',''),x.k,'');
   $('#g-reccount').textContent=`${items.filter(x=>clipURL[x.k]).length} of ${items.length} ${gRecSet==='game'?'game':'practice'} words recorded in your voice`;
-  $('#g-reclist').innerHTML=items.map(x=>recRow(x.k,x.k,x.th.replace('class="picbox"',''),x.k,x.note)).join('');
+  $('#g-reclist').innerHTML=gRecSet==='game'?items.map(row).join(''):POS.map(p=>{const g=items.filter(x=>x.pos===p.id);
+    return `<h4 class="rechead">${p.kid} of the word · ${p.gr} <span>${g.filter(x=>clipURL[x.k]).length} of ${g.length} recorded</span></h4>`+g.map(row).join('')}).join('');
   renderLines()}
 function renderLines(){
   const T=[['lines','Game lines'],['crit','Critter names'],['name','Child’s name']];
